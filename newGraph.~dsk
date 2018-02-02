@@ -1,45 +1,39 @@
 [Closed Files]
-File_0=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,2733,17,2750,0,0
-File_1=SourceModule,'c:\projects\mappl_build\mappl\MapplTypes.pas',0,1,1,13,9,0,0
-File_2=SourceModule,'c:\projects\mappl_build\mappl\mapplMath.pas',0,1,4407,1,4422,0,0
-File_3=SourceModule,'C:\projects\gis_mgt\src\core\main.pas',0,1,1,177,10,1,0
-File_4=SourceModule,'C:\projects\mappl_build\uni\uniTypes.pas',0,1,209,1,225,0,0
-File_5=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\system.pas',0,1,177,20,193,0,0
-File_6=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\Contnrs.pas',0,1,226,1,241,0,0
-File_7=SourceModule,'C:\projects\mappl_build\administration\frmDXAuthorization.pas',0,1,121,1,141,0,0
-File_8=SourceModule,'C:\projects\gis_mgt\mgtCore.pas',0,1,812,22,831,0,0
-File_9=SourceModule,'C:\projects\mappl_build\simpleUpdater\engine\updateCore.pas',0,1,259,47,286,0,0
+File_0=SourceModule,'C:\projects\mappl_build\uni\uniLinkContainer.pas',0,1,282,29,302,0,0
+File_1=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\system.pas',0,1,8369,9,8393,0,0
+File_2=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\sysutils.pas',0,1,16247,10,16274,0,0
+File_3=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,2740,1,2761,0,0
+File_4=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\Contnrs.pas',0,1,1,1,9,0,0
+File_5=SourceModule,'C:\projects\mappl_build\uni\uniGraph.pas',0,1,1142,11,1161,0,0
+File_6=SourceModule,'C:\projects\mappl_build\Mappl\MakeWay.pas',0,1,349,6,366,0,0
+File_7=SourceModule,'C:\projects\mappl_build\Mappl\MakeWayUtils.pas',0,1,55,1,1,0,0
+File_8=SourceModule,'c:\projects\mappl_build\mappl\MapplTypes.pas',0,1,1,13,9,0,0
+File_9=SourceModule,'c:\projects\mappl_build\mappl\mapplMath.pas',0,1,4407,1,4422,0,0
 
 [Modules]
-Module0=C:\projects\newGraph\testGraphForm.pas
-Module1=C:\projects\newGraph\basicGraph.pas
-Module2=C:\projects\mappl_build\Mappl\MakeWay.pas
-Module3=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
-Module4=C:\projects\mappl_build\uni\uniGraph.pas
-Count=5
+Module0=C:\projects\newGraph\basicGraph.pas
+Module1=C:\projects\mappl_build\uni\uniHashContainer.pas
+Module2=C:\projects\newGraph\testGraphForm.pas
+Module3=C:\projects\newGraph\newGraph.dpr
+Count=4
 EditWindowCount=1
-
-[C:\projects\newGraph\testGraphForm.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=0
 
 [C:\projects\newGraph\basicGraph.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[C:\projects\mappl_build\Mappl\MakeWay.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=0
-
-[C:\projects\mappl_build\Mappl\MakeWayUtils.pas]
+[C:\projects\mappl_build\uni\uniHashContainer.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[C:\projects\mappl_build\uni\uniGraph.pas]
+[C:\projects\newGraph\testGraphForm.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\projects\newGraph\newGraph.dpr]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -48,18 +42,13 @@ FormOnTop=0
 FormState=0
 FormOnTop=0
 
-[C:\projects\newGraph\newGraph.dpr]
-FormState=0
-FormOnTop=0
-
 [EditWindow0]
-ViewCount=5
-CurrentView=0
+ViewCount=4
+CurrentView=2
 View0=0
 View1=1
 View2=2
 View3=3
-View4=4
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
@@ -77,43 +66,36 @@ LeftPanelSize=140
 LeftPanelClients=CodeExplorer@EditWindow0
 LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
 RightPanelSize=0
-BottomPanelSize=208
+BottomPanelSize=15
 BottomPanelClients=MessageView@EditWindow0,DockSite0
-BottomPanelData=0000040000000000A40600000000000002D0000000000000000100000000A1000000000000000100000001A4060000000000000200000000700000000B0000004D657373616765566965770200000000D000000009000000446F636B5369746530FFFFFFFF
+BottomPanelData=0000040000000000A406000000000000020F000000000000000100000000A1000000000000000100000001A4060000000000000200000000AA0000000B0000004D6573736167655669657702000000000F00000009000000446F636B5369746530FFFFFFFF
 
 [View0]
-Module=C:\projects\newGraph\testGraphForm.pas
-CursorX=1
-CursorY=34
-TopLine=19
+Module=C:\projects\newGraph\newGraph.dpr
+CursorX=19
+CursorY=11
+TopLine=1
 LeftCol=1
 
 [View1]
-Module=C:\projects\newGraph\basicGraph.pas
-CursorX=32
-CursorY=742
-TopLine=714
+Module=C:\projects\newGraph\testGraphForm.pas
+CursorX=46
+CursorY=28
+TopLine=25
 LeftCol=1
 
 [View2]
-Module=C:\projects\mappl_build\uni\uniGraph.pas
-CursorX=11
-CursorY=1161
-TopLine=1142
+Module=C:\projects\newGraph\basicGraph.pas
+CursorX=3
+CursorY=652
+TopLine=617
 LeftCol=1
 
 [View3]
-Module=C:\projects\mappl_build\Mappl\MakeWay.pas
-CursorX=6
-CursorY=366
-TopLine=349
-LeftCol=1
-
-[View4]
-Module=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
-CursorX=1
-CursorY=1
-TopLine=55
+Module=C:\projects\mappl_build\uni\uniHashContainer.pas
+CursorX=10
+CursorY=610
+TopLine=596
 LeftCol=1
 
 [Watches]
@@ -128,11 +110,11 @@ State=0
 Left=0
 Top=0
 Width=1680
-Height=67
+Height=3
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1680
-ClientHeight=67
+ClientWidth=1663
+ClientHeight=3
 TBDockHeight=157
 LRDockWidth=426
 Dockable=1
@@ -213,11 +195,11 @@ State=0
 Left=0
 Top=0
 Width=1680
-Height=67
+Height=3
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1680
-ClientHeight=67
+ClientHeight=3
 TBDockHeight=161
 LRDockWidth=294
 Dockable=1
@@ -261,11 +243,11 @@ State=0
 Left=0
 Top=12
 Width=140
-Height=632
+Height=825
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=140
-ClientHeight=632
+ClientHeight=825
 TBDockHeight=305
 LRDockWidth=140
 Dockable=1
@@ -277,12 +259,12 @@ State=0
 Left=12
 Top=0
 Width=1688
-Height=108
+Height=166
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1688
-ClientHeight=108
-TBDockHeight=108
+ClientHeight=166
+TBDockHeight=166
 LRDockWidth=443
 Dockable=1
 
@@ -295,14 +277,14 @@ Create=1
 Visible=1
 State=0
 Left=12
-Top=112
+Top=170
 Width=1688
-Height=96
+Height=0
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1688
-ClientHeight=96
-TBDockHeight=96
+ClientHeight=0
+TBDockHeight=3
 LRDockWidth=283
 Dockable=1
 TabPosition=0
