@@ -217,6 +217,10 @@ type
     function GetEdge_ByUID( AUID: Int64 ): TBasicGraphEdge;
     //получение дуги по её объекту
     function GetEdge_ByObject( AObject: TOBject ): TBasicGraphEdge;
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    function FindPath( nodeFrom, nodeTo: TBasicGraphNode ): TList;
   end;
 
 implementation
@@ -664,7 +668,11 @@ function TBasicGraphNode.GetNeighbour_ByIndex( AIndex: Integer; AListDirection: 
 begin
   Result := nil;
   
-  if AIndex < 0 then
+  if ( AIndex < 0 )
+  OR ( ( AListDirection = bgdTo )
+      AND ( AIndex >= FNeighboursList_To.Count ) )
+  OR ( ( AListDirection = bgdFrom )
+      AND ( AIndex >= FNeighboursList_From.Count ) ) then
     Exit;
 
   if AListDirection = bgdTo then
@@ -891,7 +899,11 @@ function TBasicGraphNode.GetEdge_ByIndex( AIndex: Integer; AListDirection: TBasi
 begin
   Result := nil;
   
-  if AIndex < 0 then
+  if ( AIndex < 0 )
+  OR ( ( AListDirection = bgdTo )
+      AND ( AIndex >= FEdgesList_To.Count ) )
+  OR ( ( AListDirection = bgdFrom )
+      AND ( AIndex >= FEdgesList_From.Count ) ) then
     Exit;
 
   if AListDirection = bgdTo then
@@ -1112,8 +1124,7 @@ begin
     FNodes_ByUID.DelObject( ANode.UID, ANode );
     FNodes_ByObject.DelObject( Integer( ANode.Object_ ), ANode );
 
-    //удаляем узел из памяти
-    FreeAndNil( ANode );
+    Result := true;
   except
     on E: Exception do
       raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
@@ -1151,8 +1162,7 @@ begin
     FNodes_ByUID.DelObject( ANode.UID, ANode );
     FNodes_ByObject.DelObject( Integer( ANode.Object_ ), ANode );
 
-    //удаляем узел из памяти
-    FreeAndNil( ANode );
+    Result := true;
   except
     on E: Exception do
       raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
@@ -1190,8 +1200,7 @@ begin
     FNodes_ByUID.DelObject( ANode.UID, ANode );
     FNodes_ByObject.DelObject( Integer( ANode.Object_ ), ANode );
 
-    //удаляем узел из памяти
-    FreeAndNil( ANode );
+    Result := true;
   except
     on E: Exception do
       raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
@@ -1255,9 +1264,6 @@ begin
     //удаление дуги из списков дуг графа
     FEdges_ByUID.DelObject( AEdge.UID, AEdge );
     FEdges_ByObject.DelObject( Integer( AEdge.Object_ ), AEdge );
-
-    //удаление дуги из памяти
-    FreeAndNil( AEdge );
   except
     on E: Exception do
       raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
@@ -1282,9 +1288,6 @@ begin
     //удаление дуги из списков дуг графа
     FEdges_ByUID.DelObject( aEdge.UID, aEdge );
     FEdges_ByObject.DelObject( Integer( aEdge.Object_ ), aEdge );
-
-    //удаление дуги из памяти
-    FreeAndNil( aEdge );
   except
     on E: Exception do
       raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
@@ -1309,9 +1312,6 @@ begin
     //удаление дуги из списков дуг графа
     FEdges_ByUID.DelObject( aEdge.UID, aEdge );
     FEdges_ByObject.DelObject( Integer( aEdge.Object_ ), aEdge );
-
-    //удаление дуги из памяти
-    FreeAndNil( aEdge );
   except
     on E: Exception do
       raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
@@ -1334,6 +1334,11 @@ end;
 function TBasicGraph.GetEdge_ByObject( AObject: TOBject ): TBasicGraphEdge;
 begin
   Result := TBasicGraphEdge( FEdges_ByObject.GetObject( Integer( AObject ) ) );
+end;
+
+function TBasicGraph.FindPath( nodeFrom, nodeTo: TBasicGraphNode ): TList;
+begin
+  //
 end;
 
 end.

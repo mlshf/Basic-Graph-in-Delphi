@@ -1,102 +1,26 @@
 [Closed Files]
-File_0=SourceModule,'C:\projects\mappl_build\uni\uniLinkContainer.pas',0,1,282,29,302,0,0
-File_1=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\system.pas',0,1,8369,9,8393,0,0
-File_2=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\sysutils.pas',0,1,16247,10,16274,0,0
-File_3=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,2740,1,2761,0,0
-File_4=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\Contnrs.pas',0,1,1,1,9,0,0
-File_5=SourceModule,'C:\projects\mappl_build\uni\uniGraph.pas',0,1,1142,11,1161,0,0
-File_6=SourceModule,'C:\projects\mappl_build\Mappl\MakeWay.pas',0,1,349,6,366,0,0
-File_7=SourceModule,'C:\projects\mappl_build\Mappl\MakeWayUtils.pas',0,1,55,1,1,0,0
-File_8=SourceModule,'c:\projects\mappl_build\mappl\MapplTypes.pas',0,1,1,13,9,0,0
-File_9=SourceModule,'c:\projects\mappl_build\mappl\mapplMath.pas',0,1,4407,1,4422,0,0
+File_0=SourceModule,'C:\projects\newGraph\testGraphForm.pas',0,1,25,51,33,1,0
+File_1=SourceModule,'C:\projects\newGraph\basicGraph.pas',0,1,199,1,223,0,0
+File_2=SourceModule,'C:\projects\mappl_build\uni\uniHashContainer.pas',0,1,853,1,874,0,0
+File_3=SourceModule,'C:\projects\mappl_build\uni\uniLinkContainer.pas',0,1,282,29,302,0,0
+File_4=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\system.pas',0,1,8369,9,8393,0,0
+File_5=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\sysutils.pas',0,1,16247,10,16274,0,0
+File_6=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,2740,1,2761,0,0
+File_7=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\Contnrs.pas',0,1,1,1,9,0,0
+File_8=SourceModule,'C:\projects\mappl_build\uni\uniGraph.pas',0,1,1142,11,1161,0,0
+File_9=SourceModule,'C:\projects\mappl_build\Mappl\MakeWay.pas',0,1,349,6,366,0,0
 
 [Modules]
-Module0=C:\projects\newGraph\basicGraph.pas
-Module1=C:\projects\mappl_build\uni\uniHashContainer.pas
-Module2=C:\projects\newGraph\testGraphForm.pas
-Module3=C:\projects\newGraph\newGraph.dpr
-Count=4
-EditWindowCount=1
-
-[C:\projects\newGraph\basicGraph.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
-[C:\projects\mappl_build\uni\uniHashContainer.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
-[C:\projects\newGraph\testGraphForm.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=0
+Count=0
+EditWindowCount=0
 
 [C:\projects\newGraph\newGraph.dpr]
-ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
 [C:\Program Files (x86)\Borland\Delphi7\Projects\ProjectGroup1.bpg]
 FormState=0
 FormOnTop=0
-
-[EditWindow0]
-ViewCount=4
-CurrentView=2
-View0=0
-View1=1
-View2=2
-View3=3
-CodeExplorer=CodeExplorer@EditWindow0
-MessageView=MessageView@EditWindow0
-Create=1
-Visible=1
-State=0
-Left=187
-Top=122
-Width=1716
-Height=894
-MaxLeft=-1
-MaxTop=-1
-ClientWidth=1700
-ClientHeight=855
-LeftPanelSize=140
-LeftPanelClients=CodeExplorer@EditWindow0
-LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
-RightPanelSize=0
-BottomPanelSize=15
-BottomPanelClients=MessageView@EditWindow0,DockSite0
-BottomPanelData=0000040000000000A406000000000000020F000000000000000100000000A1000000000000000100000001A4060000000000000200000000AA0000000B0000004D6573736167655669657702000000000F00000009000000446F636B5369746530FFFFFFFF
-
-[View0]
-Module=C:\projects\newGraph\newGraph.dpr
-CursorX=19
-CursorY=11
-TopLine=1
-LeftCol=1
-
-[View1]
-Module=C:\projects\newGraph\testGraphForm.pas
-CursorX=46
-CursorY=28
-TopLine=25
-LeftCol=1
-
-[View2]
-Module=C:\projects\newGraph\basicGraph.pas
-CursorX=3
-CursorY=652
-TopLine=617
-LeftCol=1
-
-[View3]
-Module=C:\projects\mappl_build\uni\uniHashContainer.pas
-CursorX=10
-CursorY=610
-TopLine=596
-LeftCol=1
 
 [Watches]
 Count=0
@@ -110,11 +34,11 @@ State=0
 Left=0
 Top=0
 Width=1680
-Height=3
+Height=126
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1663
-ClientHeight=3
+ClientWidth=1680
+ClientHeight=126
 TBDockHeight=157
 LRDockWidth=426
 Dockable=1
@@ -184,7 +108,7 @@ LRDockWidth=190
 Dockable=1
 SplitPos=85
 ArrangeBy=Name
-SelectedItem=Action
+SelectedItem=
 ExpandedItems=
 HiddenCategories=
 
@@ -195,11 +119,11 @@ State=0
 Left=0
 Top=0
 Width=1680
-Height=3
+Height=126
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1680
-ClientHeight=3
+ClientHeight=126
 TBDockHeight=161
 LRDockWidth=294
 Dockable=1
@@ -236,55 +160,23 @@ TBDockHeight=748
 LRDockWidth=639
 Dockable=1
 
-[CodeExplorer@EditWindow0]
-Create=1
-Visible=1
-State=0
-Left=0
-Top=12
-Width=140
-Height=825
-MaxLeft=-1
-MaxTop=-1
-ClientWidth=140
-ClientHeight=825
-TBDockHeight=305
-LRDockWidth=140
-Dockable=1
-
-[MessageView@EditWindow0]
-Create=1
-Visible=1
-State=0
-Left=12
-Top=0
-Width=1688
-Height=166
-MaxLeft=-1
-MaxTop=-1
-ClientWidth=1688
-ClientHeight=166
-TBDockHeight=166
-LRDockWidth=443
-Dockable=1
-
 [DockHosts]
 DockHostCount=1
 
 [DockSite0]
 DockSiteType=1
 Create=1
-Visible=1
+Visible=0
 State=0
-Left=12
-Top=170
-Width=1688
-Height=0
+Left=195
+Top=1008
+Width=1704
+Height=194
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1688
-ClientHeight=0
-TBDockHeight=3
+ClientHeight=155
+TBDockHeight=155
 LRDockWidth=283
 Dockable=1
 TabPosition=0
