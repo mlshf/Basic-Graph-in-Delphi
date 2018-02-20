@@ -3,7 +3,7 @@ unit basicGraph;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, uniTypes, math, mapplMath, Contnrs, uniHashContainer;
+  Dialogs, uniTypes, math, mapplMath, Contnrs, uniHashContainer, maps, mapsSys;
 
 type
   EBasicGraphError = class(Exception);
@@ -49,17 +49,17 @@ type
     //удалить дугу из обоих списков дуг, найдя её по объекту
     procedure DeleteEdge_ByObject( AObject: TObject );
 
+    //индекс узла-соседа в списке соседей To/From по UID
+    function IndexOfNeighbour_ByUID( AListDirection: TBasicGraphDirection; AUID: Int64 ): Integer;
+    //индекс узла-соседа в списке соседей To/From по объекту
+    function IndexOfNeighbour_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): Integer;
+
   public
     constructor Create( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ); reintroduce;
 
     destructor Destroy(); override;
 
     //----------------------------------------------------------------------------------------------------------------
-
-    //индекс узла-соседа в списке соседей To/From по UID
-    function IndexOfNeighbour_ByUID( AListDirection: TBasicGraphDirection; AUID: Int64 ): Integer;
-    //индекс узла-соседа в списке соседей To/From по объекту
-    function IndexOfNeighbour_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): Integer;
 
     //ПРОВЕРКА НАЛИЧИЯ УЗЛА-СОСЕДА
     //проверить наличие узла-соседа в списках соседей From/To/From&To
@@ -200,9 +200,9 @@ type
 
     //ДОБАВЛЕНИЕ ДУГИ
     //Добавить дугу в список дуг, возвращает объект
-    function AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AObject: TObject = nil;
-                      AflOwnsObject: Boolean = false; AflBiDirected: Boolean = false;
-                      AWeight: Double = 1.0 ): TBasicGraphEdge;
+    function AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AWeight: Double = 1.0;
+                      AObject: TObject = nil; AflOwnsObject: Boolean = false;
+                      AflBiDirected: Boolean = false ): TBasicGraphEdge;
 
     //УДАЛЕНИЕ ДУГИ
     //Удалить дугу.
@@ -220,7 +220,7 @@ type
 
     //------------------------------------------------------------------------------------------------------------------
 
-    function FindPath( nodeFrom, nodeTo: TBasicGraphNode ): TList;
+    function FindPath(  nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
   end;
 
 implementation
@@ -1227,9 +1227,9 @@ end;
 {**********************************************************************************************
 *  TBasicGraph.AddEdge
 ***********************************************************************************************}
-function TBasicGraph.AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AObject: TObject = nil;
-                      AflOwnsObject: Boolean = false; AflBiDirected: Boolean = false;
-                      AWeight: Double = 1.0 ): TBasicGraphEdge;
+function TBasicGraph.AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AWeight: Double = 1.0;
+                      AObject: TObject = nil; AflOwnsObject: Boolean = false;
+                      AflBiDirected: Boolean = false ): TBasicGraphEdge;
 var
   edge: TBasicGraphEdge;
 begin
@@ -1336,9 +1336,136 @@ begin
   Result := TBasicGraphEdge( FEdges_ByObject.GetObject( Integer( AObject ) ) );
 end;
 
-function TBasicGraph.FindPath( nodeFrom, nodeTo: TBasicGraphNode ): TList;
+{**********************************************************************************************
+* TBasicGraph.FindPath
+***********************************************************************************************}
+function TBasicGraph.FindPath( nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
+var
+  distanceFromSource_Map: TMapDouble;
+  incomingEdge_HashContainer: THashContainer;
+  queuedNodes_Map: TMapObjects;
+  index: integer;
+  node, neighbour: TBasicGraphNode;
+  edge: TbasicGraphEdge;
+  distance: double;
+
+  procedure processNode( node: TBasicGraphNode );
+  begin
+    if node <> nil then
+    begin
+      distanceFromSource_Map.addItem( IntToStr( node.UID ), -1.0 );
+      incomingEdge_HashContainer.AddObject( node.UID );
+      queuedNodes_Map.addItem( IntToStr( node.UID ), node );
+    end;
+  end;
+
+  //добавить узел в упорядоченную очередь
+  procedure reorderNodeInQueue( node: TBasicGraphNode );
+  var
+    i, count: integer;
+  begin
+    //если узла уже нет в очереди, то ничего делать не надо
+    if queuedNodes_Map.IndexOfObject( node  ) = -1 then
+      Exit;
+
+    count := distanceFromSource_Map.Count;
+    i := 0;
+    //сдвигать i до тех пор, пока он указывает на узел с distanceFromSource > 0
+    //и меньше, чем distance
+    while ( distanceFromSource_Map.itemsByKey[ IntToStr( TBasicGraphNode( queuedNodes_Map.items[ i ] ).UID ) ] > 0 )
+      AND ( distanceFromSource_Map.itemsByKey[ IntToStr( TBasicGraphNode( queuedNodes_Map.items[ i ] ).UID ) ] < distance )
+      AND ( i < count - 1 )  do
+      i := i + 1;
+
+    //вставить узел в найденное место
+    queuedNodes_Map.Delete( queuedNodes_Map.IndexOfObject( node ) );
+    queuedNodes_Map.insertItem( i, IntToStr( node.UID ), node );
+  end;
+
 begin
-  //
+  if nodeFrom = nodeTo then
+  begin
+    Result := 0;
+    exit;
+  end;
+
+  Result := -1;
+  try
+    //-------------------------------------------------------------------------------------------------------------------
+    //ИНИЦИАЛИЗАЦИЯ
+    //заполнение списка расстояний
+    distanceFromSource_Map := TMapDouble.Create();
+    //заполнение списка предыдущих узлов
+    incomingEdge_HashContainer := THashContainer.Create();
+    //заполнение списка узлов
+    queuedNodes_Map := TMapObjects.Create();
+  
+    node := FNodes_ByUID.GetObject( FNodes_ByUID.First() ) as TBasicGraphNode;
+    processNode( node );
+
+    node := FNodes_ByUID.GetObject( FNodes_ByUID.Next() ) as TBasicGraphNode;
+    while node <> nil do
+    begin
+      processNode( node );
+      node := FNodes_ByUID.GetObject( FNodes_ByUID.Next() ) as TBasicGraphNode;
+    end;
+
+    //расстояние от Source до Source = 0
+    //список упорядочиваем, на первое место ставим элемент, ближайший к Source - сейчас это он сам
+    distanceFromSource_Map.itemsByKey[ IntToStr( nodeFrom.UID ) ] := 0;
+    queuedNodes_Map.Exchange( 0, queuedNodes_Map.IndexOfObject( nodeFrom ) );
+
+    //-------------------------------------------------------------------------------------------------------------------
+    //ПРЯМОЙ ХОД АЛГОРИТМА
+    //обрабатывать узлы из очереди, пока они не закончатся
+    while queuedNodes_Map.Count > 0 do
+    begin
+      //достать элемент из очереди
+      node := queuedNodes_Map.items[ 0 ] as TBasicGraphNode;
+      queuedNodes_Map.Delete( 0 );
+                                              
+      for index := 0 to node.GetEdgesCount( bgdFrom ) - 1 do
+      begin
+        edge := node.GetEdge_ByIndex( index, bgdFrom );
+        if edge.NodeTo <> node then
+        begin
+          neighbour := edge.NodeTo;
+          distance := distanceFromSource_Map.itemsByKey[ IntToStr( node.UID ) ] + edge.Weight;
+          //если узел не был рассмотрен ранее
+          //или он дальше от источника, чем получилось сейчас
+          if ( distanceFromSource_Map.itemsByKey[ IntToStr( neighbour.UID ) ] = -1 )
+            OR ( distanceFromSource_Map.itemsByKey[ IntToStr( neighbour.UID ) ] > distance ) then
+          begin
+            //записать новый distanceFromSource
+            //записать новый узел-предшественник
+            distanceFromSource_Map.itemsByKey[ IntToStr( neighbour.UID ) ] := distance;
+            incomingEdge_HashContainer.Items[ neighbour.UID ] := edge;
+
+            if queuedNodes_Map.Count > 1 then
+              reorderNodeInQueue( neighbour );
+          end;
+        end;
+      end;
+    end;
+
+    //-------------------------------------------------------------------------------------------------------------------
+    //ОБРАТНЫЙ ХОД АЛГОРИТМА
+    
+    edge := TBasicGraphEdge( incomingEdge_HashContainer.GetObject( nodeTo.UID ) );
+    if edge <> nil then
+      Result := 0;
+      
+    while edge <> nil do
+    begin
+      path.Insert( 0, edge );
+      Result := Result + edge.Weight;
+      edge := incomingEdge_HashContainer.GetObject( edge.NodeFrom.UID ) as TBasicGraphEdge;
+    end;
+  finally
+    FreeAndNil( distanceFromSource_Map );
+    FreeAndNil( incomingEdge_HashContainer );
+    FreeAndNil( queuedNodes_Map );
+  end;
 end;
 
 end.

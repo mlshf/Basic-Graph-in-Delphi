@@ -32,6 +32,9 @@ var
   node: TBasicGraphNode;
   edge: TBasicGraphEdge;
   obj: TObject;
+  path: TList;
+  index: integer;
+  length: double;
 begin
   //
   graph := TBasicGraph.Create();
@@ -39,16 +42,29 @@ begin
   try
     obj := TObject.Create();
     graph.AddNode( 1 );
-    graph.AddNode( 2 );
+    graph.AddNode( 2, obj );
+    graph.AddNode( 3 );
+    graph.AddNode( 4 );
 
-    graph.AddEdge( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), 1);
+    graph.AddEdge( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), 10, 1 );
+    graph.AddEdge( graph.GetNode_ByUID( 2 ), graph.GetNode_ByUID( 3 ), 20, 2 );
+    //graph.AddEdge( graph.GetNode_ByUID( 3 ), graph.GetNode_ByUID( 4 ), 30, 3 );
+    graph.AddEdge( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 4 ), 40, 7.9 );
+    graph.AddEdge( graph.GetNode_ByUID( 4 ), graph.GetNode_ByUID( 3 ), 50, 1 );
+    graph.AddEdge( graph.GetNode_ByUID( 2 ), graph.GetNode_ByUID( 1 ), 60, 10 );
 
-    ShowMessage( IntToStr( graph.GetNode_ByUID( 1 ).GetNeighbour_ByIndex( 0, bgdFrom ).GetNeighboursCount( bgdTo ) ) );
+    path := TList.Create();
+    length := graph.FindPath( graph.GetNode_ByUID( 2 ), graph.GetNode_ByUID( 4 ), path );
+    txt := '';
+    for index := 0 to path.Count - 1 do
+      txt := txt + ' ' + IntToStr( TBasicGraphNode( path[ index ] ).UID );
+
+    ShowMessage( txt + ' Len: ' + FloatToStr( length ) );
   finally
-    FreeAndNil(graph);
-    FreeAndNil(obj);
+    FreeAndNil( graph );
+    FreeAndNil( obj );
+    FreeAndNil( path );
   end;
-
 end;
 
 end.
