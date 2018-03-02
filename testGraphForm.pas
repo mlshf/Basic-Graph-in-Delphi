@@ -5,10 +5,11 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, uniTypes, math, mapplMath, Contnrs,
-  basicGraph;
+  basicGraph, DBACore, DBConn, sqlLoader;
 
 type
   TForm1 = class(TForm)
+    function GetGraph(): TBasicGraph;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -25,44 +26,82 @@ implementation
 
 {$R *.dfm}
 
+function TForm1.GetGraph(): TBasicGraph;
+var
+  queryString, connString: string;
+  dbResult_Nodes, dbResult_Edges: TDBResult;
+  conn: TDBAConnection;
+begin
+  Result := TbasicGraph.Create();
+  
+  connString := 'driver=MySql;hostname=uran;port=3313;user=mappl;password=gismgt;collation=cp1251_general_ci;charset=cp1251';
+
+  conn := TDBACore.GetGlobalCore.addConnection( connString, False); 
+
+  queryString := 'SELECT ' + conn.quoteName( 'MUID' ) + ' FROM ' + conn.quoteName( 'gis_mgt' )
+                  + '.' + conn.quoteName( 'graph_nodes' );
+
+  conn.QueryOpen( queryString, dbResult_Nodes, true );
+
+  queryString := 'SELECT ' + conn.quoteName( 'MUID' ) + ', ' + conn.quoteName( 'startNodeMUID' )
+                  + ', ' + conn.quoteName( 'endNodeMUID' ) + ', ' + conn.quoteName( 'ObjectLength' ) + ' FROM '
+                  + conn.quoteName( 'gis_mgt' ) + '.' + conn.quoteName( 'graph_sections' );
+
+  conn.QueryOpen( queryString, dbResult_Edges, true );
+
+  while dbResult_Nodes.Fetch() do
+    Result.AddNode( dbResult_Nodes.asInt64( 0 ) );
+
+  while dbResult_Edges.Fetch() do
+  begin
+    if ( Result.GetNode_ByUID( dbResult_Edges.asInt64( 1 ) ) <> nil )
+      AND ( Result.GetNode_ByUID( dbResult_Edges.asInt64( 2 ) ) <> nil ) then
+      Result.AddEdge( Result.GetNode_ByUID( dbResult_Edges.asInt64( 1 ) ),
+                    Result.GetNode_ByUID( dbResult_Edges.asInt64( 2 ) ),
+                    dbResult_Edges.asInt64( 0 ),
+                    dbResult_Edges.asFloat( 3 ) );
+  end;
+
+  FreeAndNil( dbResult_Nodes );
+  FreeAndNil( dbResult_Edges );
+  FreeAndNil( conn );
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 var
   graph: TBasicGraph;
   txt: string;
-  node: TBasicGraphNode;
-  edge: TBasicGraphEdge;
-  obj: TObject;
   path: TList;
   index: integer;
   length: double;
+  vTime: TDateTime;
+  time, timeG: string;
 begin
-  //
-  graph := TBasicGraph.Create();
-  
   try
-    obj := TObject.Create();
-    graph.AddNode( 1 );
-    graph.AddNode( 2, obj );
-    graph.AddNode( 3 );
-    graph.AddNode( 4 );
+    vTime := Now();
 
-    graph.AddEdge( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), 10, 1 );
-    graph.AddEdge( graph.GetNode_ByUID( 2 ), graph.GetNode_ByUID( 3 ), 20, 2 );
-    //graph.AddEdge( graph.GetNode_ByUID( 3 ), graph.GetNode_ByUID( 4 ), 30, 3 );
-    graph.AddEdge( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 4 ), 40, 7.9 );
-    graph.AddEdge( graph.GetNode_ByUID( 4 ), graph.GetNode_ByUID( 3 ), 50, 1 );
-    graph.AddEdge( graph.GetNode_ByUID( 2 ), graph.GetNode_ByUID( 1 ), 60, 10 );
+    graph := GetGraph();
+
+    timeG := IntToStr( DiffDateTimeMsec(Now(), vTime) );
 
     path := TList.Create();
-    length := graph.FindPath( graph.GetNode_ByUID( 2 ), graph.GetNode_ByUID( 4 ), path );
-    txt := '';
-    for index := 0 to path.Count - 1 do
-      txt := txt + ' ' + IntToStr( TBasicGraphNode( path[ index ] ).UID );
 
-    ShowMessage( txt + ' Len: ' + FloatToStr( length ) );
+    vTime := Now();
+
+    length := graph.FindPath( graph.GetNode_ByUID( 2968044917690250096 ), graph.GetNode_ByUID( 2968045942381045440 ), path );
+
+    time := IntToStr( DiffDateTimeMsec(Now(), vTime) );
+    
+    txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
+    for index := 0 to path.Count - 1 do
+      txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
+    txt := txt + ' = End';
+    txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
+    txt := txt + sLineBreak + 'Time: ' + time + ' ms';
+    txt := txt + sLineBreak + 'Graph Load Time: ' + timeG + ' ms';
+    ShowMessage( txt );
   finally
     FreeAndNil( graph );
-    FreeAndNil( obj );
     FreeAndNil( path );
   end;
 end;

@@ -3,7 +3,8 @@ unit basicGraph;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, uniTypes, math, mapplMath, Contnrs, uniHashContainer, maps, mapsSys;
+  Dialogs, uniTypes, math, mapplMath, Contnrs, uniHashContainer, maps, mapsSys,
+  uniBaseTypes;
 
 type
   EBasicGraphError = class(Exception);
@@ -16,9 +17,34 @@ type
 
   TBasicGraphEdge = class;
 
+  TEdgeStruct = class
+  private
+    FEdge: TBasicGraphEdge;
+    FCost: Double;
+  public
+
+    constructor Create( AEdge: TBasicGraphEdge; ACost: Double ); reintroduce;
+
+    property Edge: TBasicGraphEdge read FEdge write FEdge;
+    property Cost: Double read FCost write FCost;
+  end;
+
+  TEdgesQueueWithPriority = class
+  private
+    FQueue: TList;
+  public
+    constructor Create();
+    function IsEmpty(): Boolean;
+    function GetElement(): TEdgeStruct;
+    //Добавить элемент в сортированый список
+    procedure AddElement( AEdgeRecord: TEdgeStruct );
+    destructor Destroy; override;
+  end;
+
   //БАЗОВЫЙ КЛАСС - ОПИСАНИЕ УЗЛА ГРАФА
   TBasicGraphNode = class( TObject )
   private
+    FIndex: Integer;
     //уникальный идентификатор
     FUID: Int64;
     //ассоциированный с узлом объект
@@ -55,7 +81,7 @@ type
     function IndexOfNeighbour_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): Integer;
 
   public
-    constructor Create( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ); reintroduce;
+    constructor Create( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ); reintroduce;
 
     destructor Destroy(); override;
 
@@ -113,11 +139,13 @@ type
     property UID: Int64 read FUID;
     property Object_: TObject read FObject write SetObject;
     property flOwnsObject: Boolean read FflOwnsObject write SetFlOwnsObject;
+    property NodeIndex: Integer read FIndex;
   end;
 
   //БАЗОВЫЙ КЛАСС - ОПИСАНИЕ ДУГИ ГРАФА
   TBasicGraphEdge = class( TObject )
   private
+    FIndex: Integer;
     //Уникальный идентификатор
     FUID: Int64;
     //связанный с дугой объект
@@ -134,7 +162,7 @@ type
     FWeight: Double;
 
   public
-    constructor Create( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AObject: TObject = nil;
+    constructor Create( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
                         AflOwnsObject: Boolean = false; AflBiDirected: Boolean = false;
                         AWeight: Double = 1.0 ); reintroduce;
 
@@ -155,10 +183,13 @@ type
     property NodeTo: TBasicGraphNode read FNodeTo write SetNodeTo;
     property FlBiDirected: Boolean read FflBiDirected write FflBiDirected;
     property Weight: Double read FWeight write SetWeight;
+    property EdgeIndex: Integer read FIndex;
   end;
 
   TBasicGraph = class( TObject )
   private
+    FHighestNodeIndexValue: Integer;
+    FHIghestEdgeIndexValue: Integer;
     //Хэш-контейнер, хранящий узел по UID. Обладает своими объектами.
     FNodes_ByUID: THashContainer;
     //Хэш-контейнер, хранящий узел по ассоциированному объекту. Не обладает своими объектами.
@@ -225,6 +256,107 @@ type
 
 implementation
 
+constructor TEdgeStruct.Create( AEdge: TBasicGraphEdge; ACost: Double );
+begin
+  FEdge := AEdge;
+  FCost := ACost;
+end;
+
+{**********************************************************************************************
+* TEdgesQueueWithPriority.Create
+***********************************************************************************************}
+constructor TEdgesQueueWithPriority.Create();
+begin
+  FQueue := TList.Create();
+end;
+
+{**********************************************************************************************
+* TEdgesQueueWithPriority.IsEmpty
+***********************************************************************************************}
+function TEdgesQueueWithPriority.IsEmpty(): Boolean;
+begin
+  Result := false;
+  if ( FQueue.Count = 0 ) then
+  begin
+    Result := true;
+  end;
+end;
+
+{**********************************************************************************************
+* TEdgesQueueWithPriority.GetElement
+***********************************************************************************************}
+function TEdgesQueueWithPriority.GetElement(): TEdgeStruct;
+begin
+  Result := nil;
+  if FQueue.Count > 0 then
+  begin
+    Result := FQueue[ 0 ];
+    FQueue.Delete( 0 );
+  end;
+end;
+
+{**********************************************************************************************
+* TEdgesQueueWithPriority.AddElement
+* Добавить элемент в сортированый список
+***********************************************************************************************}
+procedure TEdgesQueueWithPriority.AddElement( AEdgeRecord: TEdgeStruct );
+var
+  startIndex, endIndex, position: integer;
+  edgeRecord: TEdgeStruct;
+begin
+  if ( FQueue.Count = 0 ) then
+  begin
+    FQueue.add( AEdgeRecord );
+    Exit;
+  end;
+
+  // Если самый маленький
+  edgeRecord:= FQueue[0];
+  if ( edgeRecord.Cost >= AEdgeRecord.Cost ) then
+  begin
+    FQueue.Insert( 0, AEdgeRecord );
+    Exit;
+  end;
+
+  // Если 1 элемент в списке
+  if ( FQueue.Count = 1 ) then
+  begin
+    FQueue.add( AEdgeRecord );
+    Exit;
+  end;
+
+  startIndex := 0;
+  endIndex := FQueue.Count - 1;
+  while ( ( endIndex - startIndex ) > 1 ) do
+  begin
+    position := ( endIndex + startIndex ) div 2; //<---
+    edgeRecord := FQueue[ position ];
+    if ( edgeRecord.Cost = AEdgeRecord.Cost ) then
+    begin
+      FQueue.Insert( position, AEdgeRecord );
+      Exit;
+    end;
+
+    if ( edgeRecord.Cost > AEdgeRecord.Cost ) then
+      endIndex:= position;
+    if ( edgeRecord.Cost < AEdgeRecord.Cost ) then
+      startIndex:= position;
+  end;
+  edgeRecord:= FQueue[ startIndex ];
+  if ( edgeRecord.Cost > AEdgeRecord.Cost ) then
+    FQueue.Insert( startIndex, AEdgeRecord )
+  else
+    FQueue.Insert( endIndex, AEdgeRecord );
+end;
+
+{**********************************************************************************************
+* TEdgesQueueWithPriority.Destroy
+***********************************************************************************************}
+destructor TEdgesQueueWithPriority.Destroy();
+begin
+  FreeAndNil( FQueue );
+end;
+
 {**********************************************************************************************
 * TBasicGraphNode.SetObject
 ***********************************************************************************************}
@@ -244,10 +376,11 @@ end;
 {**********************************************************************************************
 * TBasicGraphNode.Create
 ***********************************************************************************************}
-constructor TBasicGraphNode.Create( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False );
+constructor TBasicGraphNode.Create( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False );
 begin
   inherited Create();
 
+  FIndex := AIndex;
   FUID := AUID;
   FObject := AObject;
   FflOwnsObject := AflOwnsObject;
@@ -1010,15 +1143,16 @@ end;
 {**********************************************************************************************
 * TBasicGraphEdge.Create
 ***********************************************************************************************}
-constructor TBasicGraphEdge.Create( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AObject: TObject = nil;
-                                    AflOwnsObject: Boolean = false; AflBiDirected: Boolean = false;
-                                    AWeight: Double = 1.0 );
+constructor TBasicGraphEdge.Create( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AIndex: Integer = -1;
+                                    AObject: TObject = nil; AflOwnsObject: Boolean = false;
+                                    AflBiDirected: Boolean = false; AWeight: Double = 1.0 );
 begin
   inherited Create();
 
   if ( ANodeFrom = nil ) or ( ANodeTo = nil ) then
     raise EBasicGraphError.Create( 'Оба узла дуги должны существовать (не nil).' );
 
+  FIndex := AIndex;
   FUID := AUID;
   FObject := AObject;
   FflOwnsObject := AflOwnsObject;
@@ -1055,6 +1189,9 @@ constructor TBasicGraph.Create();
 begin
   inherited Create();
 
+  FHighestNodeIndexValue := 0;
+  FHIghestEdgeIndexValue := 0;
+
   FNodes_ByUID := THashContainer.Create( True );
   FNodes_ByObject := THashContainer.Create( );
   FEdges_ByUID := THashContainer.Create( True );
@@ -1084,7 +1221,8 @@ begin
     raise EBasicGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
 
   try
-    node := TBasicGraphNode.Create( AUID, AObject, AflOwnsObject );
+    node := TBasicGraphNode.Create( AUID, FHighestNodeIndexValue, AObject, AflOwnsObject );
+    FHighestNodeIndexValue := FHighestNodeIndexValue + 1;
 
     FNodes_ByUID.AddObject( node.UID, node, true );
     FNodes_ByObject.AddObject( Integer( node.Object_ ), node, true );
@@ -1238,7 +1376,8 @@ begin
     raise EBasicGraphError.Create( 'Невозможно добавить дугу в несуществующий (nil) список дуг.' );
 
   try
-    edge := TBasicGraphEdge.Create( ANodeFrom, ANodeTo, AUID, AObject, AflOwnsObject, AflBiDirected, AWeight );
+    edge := TBasicGraphEdge.Create( ANodeFrom, ANodeTo, AUID, FHighestEdgeIndexValue, AObject, AflOwnsObject, AflBiDirected, AWeight );
+    FHighestEdgeIndexValue := FHighestEdgeIndexValue + 1;
 
     FEdges_ByUID.AddObject( edge.UID, edge, true );
     FEdges_ByObject.AddObject( Integer( edge.Object_ ), edge, true );
@@ -1341,45 +1480,27 @@ end;
 ***********************************************************************************************}
 function TBasicGraph.FindPath( nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
 var
-  distanceFromSource_Map: TMapDouble;
-  incomingEdge_HashContainer: THashContainer;
-  queuedNodes_Map: TMapObjects;
+  distanceFromSource: array of Double;
+  incomingEdge: array of TBasicGraphEdge;
+  queuedEdges: TEdgesQueueWithPriority;
   index: integer;
-  node, neighbour: TBasicGraphNode;
-  edge: TbasicGraphEdge;
-  distance: double;
+  currentNode: TBasicGraphNode;
+  queuedEdge, currentEdge: TBasicGraphEdge;
+  edgeStruct: TEdgeStruct;
+  currentDistanceFromSource: Double;
 
-  procedure processNode( node: TBasicGraphNode );
-  begin
-    if node <> nil then
-    begin
-      distanceFromSource_Map.addItem( IntToStr( node.UID ), -1.0 );
-      incomingEdge_HashContainer.AddObject( node.UID );
-      queuedNodes_Map.addItem( IntToStr( node.UID ), node );
-    end;
-  end;
-
-  //добавить узел в упорядоченную очередь
-  procedure reorderNodeInQueue( node: TBasicGraphNode );
+  procedure AddStartEdgesToArray( startNode: TBasicGraphNode );
   var
-    i, count: integer;
+    index: Integer;
+    edge: TBasicGraphEdge;
   begin
-    //если узла уже нет в очереди, то ничего делать не надо
-    if queuedNodes_Map.IndexOfObject( node  ) = -1 then
-      Exit;
-
-    count := distanceFromSource_Map.Count;
-    i := 0;
-    //сдвигать i до тех пор, пока он указывает на узел с distanceFromSource > 0
-    //и меньше, чем distance
-    while ( distanceFromSource_Map.itemsByKey[ IntToStr( TBasicGraphNode( queuedNodes_Map.items[ i ] ).UID ) ] > 0 )
-      AND ( distanceFromSource_Map.itemsByKey[ IntToStr( TBasicGraphNode( queuedNodes_Map.items[ i ] ).UID ) ] < distance )
-      AND ( i < count - 1 )  do
-      i := i + 1;
-
-    //вставить узел в найденное место
-    queuedNodes_Map.Delete( queuedNodes_Map.IndexOfObject( node ) );
-    queuedNodes_Map.insertItem( i, IntToStr( node.UID ), node );
+    for index := 0 to startNode.GetEdgesCount( bgdFrom ) - 1 do
+    begin
+      edge := startNode.GetEdge_ByIndex( index, bgdFrom );
+      distanceFromSource[ edge.NodeTo.NodeIndex ] := edge.Weight;
+      incomingEdge[ edge.NodeTo.NodeIndex ] := edge;
+      queuedEdges.AddElement( TEdgeStruct.Create( edge, edge.Weight ) );
+    end;
   end;
 
 begin
@@ -1391,80 +1512,68 @@ begin
 
   Result := -1;
   try
+    SetLength( distanceFromSource, FNodes_ByUID.ObjectCount );
+    SetLength( incomingEdge, FNodes_ByUID.ObjectCount );
+    queuedEdges := TEdgesQueueWithPriority.Create();
     //-------------------------------------------------------------------------------------------------------------------
     //ИНИЦИАЛИЗАЦИЯ
-    //заполнение списка расстояний
-    distanceFromSource_Map := TMapDouble.Create();
-    //заполнение списка предыдущих узлов
-    incomingEdge_HashContainer := THashContainer.Create();
-    //заполнение списка узлов
-    queuedNodes_Map := TMapObjects.Create();
-  
-    node := FNodes_ByUID.GetObject( FNodes_ByUID.First() ) as TBasicGraphNode;
-    processNode( node );
-
-    node := FNodes_ByUID.GetObject( FNodes_ByUID.Next() ) as TBasicGraphNode;
-    while node <> nil do
+    for index := 0 to FNodes_ByUID.ObjectCount - 1 do
     begin
-      processNode( node );
-      node := FNodes_ByUID.GetObject( FNodes_ByUID.Next() ) as TBasicGraphNode;
+      distanceFromSource[ index ] := -1.0;
+      incomingEdge[ index ] := nil;
     end;
 
     //расстояние от Source до Source = 0
     //список упорядочиваем, на первое место ставим элемент, ближайший к Source - сейчас это он сам
-    distanceFromSource_Map.itemsByKey[ IntToStr( nodeFrom.UID ) ] := 0;
-    queuedNodes_Map.Exchange( 0, queuedNodes_Map.IndexOfObject( nodeFrom ) );
+    distanceFromSource[ nodeFrom.NodeIndex ] := 0;
+    incomingEdge[ nodeFrom.NodeIndex ] := nil;
+    AddStartEdgesToArray( nodeFrom );
 
     //-------------------------------------------------------------------------------------------------------------------
     //ПРЯМОЙ ХОД АЛГОРИТМА
-    //обрабатывать узлы из очереди, пока они не закончатся
-    while queuedNodes_Map.Count > 0 do
+    while ( not queuedEdges.IsEmpty() ) do
     begin
-      //достать элемент из очереди
-      node := queuedNodes_Map.items[ 0 ] as TBasicGraphNode;
-      queuedNodes_Map.Delete( 0 );
-                                              
-      for index := 0 to node.GetEdgesCount( bgdFrom ) - 1 do
+      edgeStruct := queuedEdges.GetElement();
+      if ( edgeStruct.Cost <> distanceFromSource[ edgeStruct.Edge.NodeTo.NodeIndex ] ) then
       begin
-        edge := node.GetEdge_ByIndex( index, bgdFrom );
-        if edge.NodeTo <> node then
-        begin
-          neighbour := edge.NodeTo;
-          distance := distanceFromSource_Map.itemsByKey[ IntToStr( node.UID ) ] + edge.Weight;
-          //если узел не был рассмотрен ранее
-          //или он дальше от источника, чем получилось сейчас
-          if ( distanceFromSource_Map.itemsByKey[ IntToStr( neighbour.UID ) ] = -1 )
-            OR ( distanceFromSource_Map.itemsByKey[ IntToStr( neighbour.UID ) ] > distance ) then
-          begin
-            //записать новый distanceFromSource
-            //записать новый узел-предшественник
-            distanceFromSource_Map.itemsByKey[ IntToStr( neighbour.UID ) ] := distance;
-            incomingEdge_HashContainer.Items[ neighbour.UID ] := edge;
-
-            if queuedNodes_Map.Count > 1 then
-              reorderNodeInQueue( neighbour );
-          end;
-        end;
+        edgeStruct.Edge := nil;
+        FreeAndNil( edgeStruct );
+        continue;
       end;
+
+      queuedEdge := edgeStruct.Edge;
+      currentNode := queuedEdge.NodeTo;
+      for index := 0 to currentNode.GetEdgesCount( bgdFrom ) - 1 do
+      begin
+        currentEdge := currentNode.GetEdge_ByIndex( index, bgdFrom );
+        currentDistanceFromSource := distanceFromSource[ currentNode.NodeIndex ] + currentEdge.Weight;
+        if ( distanceFromSource[ currentEdge.NodeTo.NodeIndex ] < 0 )
+          OR ( distanceFromSource[ currentEdge.NodeTo.NodeIndex ] > currentDistanceFromSource ) then
+        begin
+          distanceFromSource[ currentEdge.NodeTo.NodeIndex ] := currentDistanceFromSource;
+          incomingEdge[ currentEdge.NodeTo.NodeIndex ] := currentEdge;
+          queuedEdges.AddElement( TEdgeStruct.Create( currentEdge, currentDistanceFromSource ) );
+        end;
+      end;    
+      FreeAndNil( edgeStruct );
     end;
+    FreeAndNil( queuedEdges );
 
     //-------------------------------------------------------------------------------------------------------------------
     //ОБРАТНЫЙ ХОД АЛГОРИТМА
     
-    edge := TBasicGraphEdge( incomingEdge_HashContainer.GetObject( nodeTo.UID ) );
-    if edge <> nil then
+    currentEdge := incomingEdge[ nodeTo.NodeIndex ];
+    if currentEdge <> nil then
       Result := 0;
       
-    while edge <> nil do
+    while currentEdge <> nil do
     begin
-      path.Insert( 0, edge );
-      Result := Result + edge.Weight;
-      edge := incomingEdge_HashContainer.GetObject( edge.NodeFrom.UID ) as TBasicGraphEdge;
+      path.Insert( 0, currentEdge );
+      Result := Result + currentEdge.Weight;
+      currentEdge := incomingEdge[ currentEdge.NodeFrom.NodeIndex ];
     end;
   finally
-    FreeAndNil( distanceFromSource_Map );
-    FreeAndNil( incomingEdge_HashContainer );
-    FreeAndNil( queuedNodes_Map );
+    FreeAndNil( queuedEdges );
   end;
 end;
 
