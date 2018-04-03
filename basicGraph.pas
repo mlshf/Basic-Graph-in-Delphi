@@ -251,6 +251,16 @@ type
 
     //------------------------------------------------------------------------------------------------------------------
 
+    //добавить узел на дугу
+    function AddNode_ToEdge( ADividedEdge: TBasicGraphEdge;
+                              AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False;
+                              ANewEdge1_UID: Int64 = -1; ANewEdge1_Weight: Double = 1.0;
+                              ANewEdge1_Object: TObject = nil; ANewEdge1_flOwnsObject: Boolean = false;
+                              ANewEdge2_UID: Int64 = -1;
+                              ANewEdge2_Object: TObject = nil; ANewEdge2_flOwnsObject: Boolean = false):
+                              TBasicGraphNode;
+
+    //найти путь из точки nodeFrom в точку nodeTo
     function FindPath(  nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
   end;
 
@@ -1476,6 +1486,47 @@ begin
 end;
 
 {**********************************************************************************************
+* TBasicGraph.AddNode_ToEdge
+***********************************************************************************************}
+function TBasicGraph.AddNode_ToEdge( ADividedEdge: TBasicGraphEdge;
+                                      AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False;
+                                      ANewEdge1_UID: Int64 = -1; ANewEdge1_Weight: Double = 1.0;
+                                      ANewEdge1_Object: TObject = nil; ANewEdge1_flOwnsObject: Boolean = false;
+                                      ANewEdge2_UID: Int64 = -1;
+                                      ANewEdge2_Object: TObject = nil; ANewEdge2_flOwnsObject: Boolean = false ):
+                                      TBasicGraphNode;
+var
+  node: TBasicGraphNode;
+  newEdge1, newEdge2: TBasicGraphEdge;
+  newEdge2_Weight: Double;
+begin
+  if ( FNodes_ByUID = nil )
+  OR ( FNodes_ByObject = nil) then
+    raise EBasicGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
+
+
+  newEdge2_Weight := ADividedEdge.Weight - ANewEdge1_Weight;
+  if ( newEdge2_Weight >= ADividedEdge.Weight )
+  OR ( newEdge2_Weight <= 0.0 ) then
+    raise EBasicGraphError.Create( 'Невозможно добавить узел на дугу с таким расстоянием от начала.' );
+
+  try
+    node := AddNode( AUID, AObject, AflOwnsObject );
+    newEdge1 := AddEdge( ADividedEdge.NodeFrom, node, ANewEdge1_UID, ANewEdge1_Weight, ANewEdge1_Object,
+                          ANewEdge1_flOwnsObject, ADividedEdge.FlBiDirected );
+    newEdge2 := AddEdge( node, ADividedEdge.NodeTo , ANewEdge2_UID, newEdge2_Weight, ANewEdge2_Object,
+                          ANewEdge2_flOwnsObject, ADividedEdge.FlBiDirected );
+    DeleteEdge( ADividedEdge );
+  except
+    on E:Exception do
+      raise EBasicGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
+  end;
+
+  Result := node;
+
+end;
+
+{**********************************************************************************************
 * TBasicGraph.FindPath
 ***********************************************************************************************}
 function TBasicGraph.FindPath( nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
@@ -1561,7 +1612,6 @@ begin
 
     //-------------------------------------------------------------------------------------------------------------------
     //ОБРАТНЫЙ ХОД АЛГОРИТМА
-    
     currentEdge := incomingEdge[ nodeTo.NodeIndex ];
     if currentEdge <> nil then
       Result := 0;

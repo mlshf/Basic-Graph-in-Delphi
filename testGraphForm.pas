@@ -9,7 +9,6 @@ uses
 
 type
   TForm1 = class(TForm)
-    function GetGraph(): TBasicGraph;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -26,7 +25,7 @@ implementation
 
 {$R *.dfm}
 
-function TForm1.GetGraph(): TBasicGraph;
+function GetGraph(): TBasicGraph;
 var
   queryString, connString: string;
   dbResult_Nodes, dbResult_Edges: TDBResult;
@@ -76,8 +75,9 @@ var
   length: double;
   vTime: TDateTime;
   time, timeG: string;
+  delEdgeWeight: Double;
 begin
-  try
+  try  {*
     vTime := Now();
 
     graph := GetGraph();
@@ -88,7 +88,7 @@ begin
 
     vTime := Now();
 
-    length := graph.FindPath( graph.GetNode_ByUID( 2968044917690250096 ), graph.GetNode_ByUID( 2968045942381045440 ), path );
+    length := graph.FindPath( graph.GetNode_ByUID( 2996941540743524643 ), graph.GetNode_ByUID( 2968043792760130358 ), path );
 
     time := IntToStr( DiffDateTimeMsec(Now(), vTime) );
     
@@ -100,6 +100,53 @@ begin
     txt := txt + sLineBreak + 'Time: ' + time + ' ms';
     txt := txt + sLineBreak + 'Graph Load Time: ' + timeG + ' ms';
     ShowMessage( txt );
+
+    graph.DeleteEdge_ByUID( 2194633358255417436 );
+
+    FreeAndNil( path );
+    path := TList.Create();
+
+    vTime := Now();
+
+    length := graph.FindPath( graph.GetNode_ByUID( 2996941540743524643 ), graph.GetNode_ByUID( 2968043792760130358 ), path );
+
+    time := IntToStr( DiffDateTimeMsec(Now(), vTime) );
+    
+    txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
+    for index := 0 to path.Count - 1 do
+      txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
+    txt := txt + ' = End';
+    txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
+    txt := txt + sLineBreak + 'Time: ' + time + ' ms';
+    txt := txt + sLineBreak + 'Graph Load Time: ' + timeG + ' ms';
+    ShowMessage( txt );*}
+
+    graph := TBasicGraph.Create();
+    graph.AddNode(1);
+    graph.AddNode(2);
+    graph.AddEdge( graph.GetNode_ByUID(1), graph.GetNode_ByUID(2), 1, 2, nil, false, true );
+    path := Tlist.Create();
+    length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+
+    txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
+    for index := 0 to path.Count - 1 do
+      txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
+    txt := txt + ' = End';
+    txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
+    ShowMessage( txt );
+
+    graph.AddNode_ToEdge( graph.GetEdge_ByUID(1), 3, nil, false, 2, 1, nil, false, 3, nil, false );
+    FreeAndNil(path);
+    path := Tlist.Create();
+    length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+
+    txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
+    for index := 0 to path.Count - 1 do
+      txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
+    txt := txt + ' = End';
+    txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
+    ShowMessage( txt );
+
   finally
     FreeAndNil( graph );
     FreeAndNil( path );

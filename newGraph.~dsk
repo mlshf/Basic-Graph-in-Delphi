@@ -1,47 +1,32 @@
 [Closed Files]
-File_0=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\sysutils.pas',0,1,10643,17,10669,0,0
-File_1=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,2835,10,2859,0,0
-File_2=SourceModule,'C:\projects\mappl_build\unis\tools\maps.pas',0,1,1009,25,1034,0,0
-File_3=SourceModule,'C:\projects\mappl_build\unis\tools\mapsSys.pas',0,1,271,1,288,0,0
-File_4=SourceModule,'C:\projects\mappl_build\uni\sqlLoader.pas',0,1,1,16,5,0,0
-File_5=SourceModule,'C:\projects\mappl_build\DBALib\DBConn.pas',0,1,546,1,444,0,0
-File_6=SourceModule,'C:\projects\mappl_build\DBALib\dbaCore.pas',0,1,1,1,1,0,0
-File_7=SourceModule,'C:\projects\mappl_build\DBALib\dbMySQL.pas',0,1,1152,29,1167,0,0
-File_8=SourceModule,'C:\projects\mappl_build\uni\uniStatusBar.pas',0,1,1,3,12,0,0
-File_9=SourceModule,'C:\projects\gis_mgt\src\datamosruLoader\MGTResourceProviderAPI.pas',0,1,914,1,950,0,0
+File_0=SourceModule,'C:\Program Files (x86)\Neos Eureka S.r.l\EurekaLog 7\Source\EMemLeaks.pas',0,1,1,51,14,0,0
+File_1=SourceModule,'C:\projects\mappl_build\DBALib\dbMySQL.pas',0,1,1150,1,1172,0,0
+File_2=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\sysutils.pas',0,1,10643,17,10669,0,0
+File_3=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,2835,10,2859,0,0
+File_4=SourceModule,'C:\projects\mappl_build\unis\tools\maps.pas',0,1,1009,25,1034,0,0
+File_5=SourceModule,'C:\projects\mappl_build\unis\tools\mapsSys.pas',0,1,271,1,288,0,0
+File_6=SourceModule,'C:\projects\mappl_build\uni\sqlLoader.pas',0,1,1,16,5,0,0
+File_7=SourceModule,'C:\projects\mappl_build\DBALib\DBConn.pas',0,1,546,1,444,0,0
+File_8=SourceModule,'C:\projects\mappl_build\DBALib\dbaCore.pas',0,1,1,1,1,0,0
+File_9=SourceModule,'C:\projects\mappl_build\uni\uniStatusBar.pas',0,1,1,3,12,0,0
 
 [Modules]
-Module0=C:\projects\newGraph\basicGraph.pas
-Module1=C:\projects\mappl_build\Mappl\MakeWay.pas
-Module2=C:\projects\newGraph\testGraphForm.pas
-Module3=C:\projects\mappl_build\Mappl\FindWay.pas
-Module4=C:\projects\mappl_build\uni\uniHashContainer.pas
-Module5=C:\projects\mappl_build\Mappl\Graph.pas
-Module6=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
+Module0=C:\projects\newGraph\testGraphForm.pas
+Module1=C:\projects\newGraph\basicGraph.pas
+Module2=C:\projects\mappl_build\Mappl\Graph.pas
+Module3=C:\projects\mappl_build\Mappl\MakeWay.pas
+Module4=C:\projects\mappl_build\Mappl\FindWay.pas
+Module5=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
+Module6=C:\projects\mappl_build\uni\uniHashContainer.pas
 Count=7
 EditWindowCount=1
-
-[C:\projects\newGraph\basicGraph.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
-[C:\projects\mappl_build\Mappl\MakeWay.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=0
 
 [C:\projects\newGraph\testGraphForm.pas]
 ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[C:\projects\mappl_build\Mappl\FindWay.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
-[C:\projects\mappl_build\uni\uniHashContainer.pas]
+[C:\projects\newGraph\basicGraph.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -51,7 +36,22 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
+[C:\projects\mappl_build\Mappl\MakeWay.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\projects\mappl_build\Mappl\FindWay.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
 [C:\projects\mappl_build\Mappl\MakeWayUtils.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\projects\mappl_build\uni\uniHashContainer.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -66,7 +66,7 @@ FormOnTop=0
 
 [EditWindow0]
 ViewCount=7
-CurrentView=1
+CurrentView=0
 View0=0
 View1=1
 View2=2
@@ -97,23 +97,23 @@ BottomPanelData=0000040000000000A40600000000000002D3000000000000000100000000A100
 
 [View0]
 Module=C:\projects\newGraph\testGraphForm.pas
-CursorX=70
-CursorY=61
-TopLine=48
+CursorX=24
+CursorY=122
+TopLine=109
 LeftCol=1
 
 [View1]
 Module=C:\projects\newGraph\basicGraph.pas
-CursorX=34
-CursorY=1372
-TopLine=1355
+CursorX=21
+CursorY=148
+TopLine=140
 LeftCol=1
 
 [View2]
 Module=C:\projects\mappl_build\Mappl\MakeWay.pas
-CursorX=48
-CursorY=189
-TopLine=232
+CursorX=65
+CursorY=688
+TopLine=673
 LeftCol=1
 
 [View3]
@@ -125,23 +125,23 @@ LeftCol=1
 
 [View4]
 Module=C:\projects\mappl_build\Mappl\FindWay.pas
-CursorX=31
-CursorY=88
-TopLine=71
+CursorX=38
+CursorY=307
+TopLine=294
 LeftCol=1
 
 [View5]
 Module=C:\projects\mappl_build\Mappl\Graph.pas
-CursorX=154
-CursorY=41
-TopLine=22
+CursorX=37
+CursorY=78
+TopLine=55
 LeftCol=1
 
 [View6]
 Module=C:\projects\mappl_build\uni\uniHashContainer.pas
-CursorX=1
-CursorY=1040
-TopLine=1020
+CursorX=39
+CursorY=874
+TopLine=859
 LeftCol=1
 
 [Watches]
@@ -166,9 +166,7 @@ LRDockWidth=426
 Dockable=1
 
 [Breakpoints]
-Count=2
-Breakpoint0='C:\projects\newGraph\basicGraph.pas',1466,'',0,1,'',1,0,0,'',1,'','',''
-Breakpoint1='C:\projects\newGraph\basicGraph.pas',1433,'',0,1,'',1,0,0,'',1,'','',''
+Count=0
 
 [AddressBreakpoints]
 Count=0
