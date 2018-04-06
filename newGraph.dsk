@@ -11,8 +11,8 @@ File_8=SourceModule,'C:\projects\mappl_build\DBALib\dbaCore.pas',0,1,1,1,1,0,0
 File_9=SourceModule,'C:\projects\mappl_build\uni\uniStatusBar.pas',0,1,1,3,12,0,0
 
 [Modules]
-Module0=C:\projects\newGraph\basicGraph.pas
-Module1=C:\projects\newGraph\testGraphForm.pas
+Module0=C:\projects\newGraph\testGraphForm.pas
+Module1=C:\projects\newGraph\basicGraph.pas
 Module2=C:\projects\mappl_build\Mappl\MakeWay.pas
 Module3=C:\projects\mappl_build\uni\uniHashContainer.pas
 Module4=C:\projects\mappl_build\Mappl\Graph.pas
@@ -21,14 +21,14 @@ Module6=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
 Count=7
 EditWindowCount=1
 
-[C:\projects\newGraph\basicGraph.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
 [C:\projects\newGraph\testGraphForm.pas]
 ModuleType=SourceModule
 FormState=1
+FormOnTop=0
+
+[C:\projects\newGraph\basicGraph.pas]
+ModuleType=SourceModule
+FormState=0
 FormOnTop=0
 
 [C:\projects\mappl_build\Mappl\MakeWay.pas]
@@ -66,7 +66,7 @@ FormOnTop=0
 
 [EditWindow0]
 ViewCount=7
-CurrentView=1
+CurrentView=0
 View0=0
 View1=1
 View2=2
@@ -91,22 +91,22 @@ LeftPanelSize=140
 LeftPanelClients=CodeExplorer@EditWindow0
 LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
 RightPanelSize=0
-BottomPanelSize=211
+BottomPanelSize=94
 BottomPanelClients=MessageView@EditWindow0,DockSite0
-BottomPanelData=0000040000000000A40600000000000002D3000000000000000100000000A1000000000000000100000001A4060000000000000200000000380000000B0000004D657373616765566965770200000000D300000009000000446F636B5369746530FFFFFFFF
+BottomPanelData=0000040000000000A406000000000000025E000000000000000100000000A1000000000000000100000001A40600000000000002000000002F0000000B0000004D6573736167655669657702000000005E00000009000000446F636B5369746530FFFFFFFF
 
 [View0]
 Module=C:\projects\newGraph\testGraphForm.pas
-CursorX=28
-CursorY=117
-TopLine=94
+CursorX=85
+CursorY=132
+TopLine=117
 LeftCol=1
 
 [View1]
 Module=C:\projects\newGraph\basicGraph.pas
-CursorX=58
-CursorY=140
-TopLine=125
+CursorX=26
+CursorY=1509
+TopLine=1488
 LeftCol=1
 
 [View2]
@@ -156,11 +156,11 @@ State=0
 Left=0
 Top=0
 Width=1680
-Height=126
+Height=18
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1680
-ClientHeight=126
+ClientWidth=1663
+ClientHeight=18
 TBDockHeight=157
 LRDockWidth=426
 Dockable=1
@@ -241,11 +241,11 @@ State=0
 Left=0
 Top=0
 Width=1680
-Height=126
+Height=18
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1680
-ClientHeight=126
+ClientHeight=18
 TBDockHeight=161
 LRDockWidth=294
 Dockable=1
@@ -289,11 +289,11 @@ State=0
 Left=0
 Top=12
 Width=140
-Height=629
+Height=746
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=140
-ClientHeight=629
+ClientHeight=746
 TBDockHeight=305
 LRDockWidth=140
 Dockable=1
@@ -305,12 +305,12 @@ State=0
 Left=12
 Top=0
 Width=1688
-Height=52
+Height=43
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1688
-ClientHeight=52
-TBDockHeight=52
+ClientHeight=43
+TBDockHeight=43
 LRDockWidth=443
 Dockable=1
 
@@ -323,14 +323,14 @@ Create=1
 Visible=1
 State=0
 Left=12
-Top=56
+Top=47
 Width=1688
-Height=155
+Height=47
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1688
-ClientHeight=155
-TBDockHeight=155
+ClientHeight=47
+TBDockHeight=47
 LRDockWidth=283
 Dockable=1
 TabPosition=0

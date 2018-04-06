@@ -251,14 +251,19 @@ type
 
     //------------------------------------------------------------------------------------------------------------------
 
-    //добавить узел на дугу
-    function AddNode_ToEdge( ADividedEdge: TBasicGraphEdge;
-                              AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False;
-                              ANewEdge1_UID: Int64 = -1; ANewEdge1_Weight: Double = 1.0;
-                              ANewEdge1_Object: TObject = nil; ANewEdge1_flOwnsObject: Boolean = false;
-                              ANewEdge2_UID: Int64 = -1;
-                              ANewEdge2_Object: TObject = nil; ANewEdge2_flOwnsObject: Boolean = false):
-                              TBasicGraphNode;
+    //добавить узел на дугу (SPLIT)
+    function AddNode_ToEdge( AEdge: TBasicGraphEdge; ANode: TBasicGraphNode; AEdge_NewWeight: Double = 1.0;
+                              ANewEdge_UID: Int64 = -1; ANewEdge_Object: TObject = nil;
+                              ANewEdge_flOwnsObject: Boolean = false ):
+                              Boolean;
+
+    //delete and merge работает только для узлов с 1 входящей дугой и 1 выходящей дугой
+    //удалить узел и объединить входящую и выходящую дуги в одну.
+    function DeleteNode_AndMergeEdges( ANode: TBasicGraphNode ): Boolean;
+    //Удалить узел по UID и объединить входящую и выходящую дуги в одну.
+    function DeleteNode_AndMergeEdges_ByUID( AUID: Int64 ): Boolean;
+    //Удалить узел по объекту и объединить входящую и выходящую дуги в одну.
+    function DeleteNode_AndMergeEdges_ByObject( AObject: TObject ): Boolean;
 
     //найти путь из точки nodeFrom в точку nodeTo
     function FindPath(  nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
@@ -1235,7 +1240,8 @@ begin
     FHighestNodeIndexValue := FHighestNodeIndexValue + 1;
 
     FNodes_ByUID.AddObject( node.UID, node, true );
-    FNodes_ByObject.AddObject( Integer( node.Object_ ), node, true );
+    if AObject <> nil then
+      FNodes_ByObject.AddObject( Integer( node.Object_ ), node, true );
   except
     on E:Exception do
       raise EBasicGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
@@ -1390,7 +1396,8 @@ begin
     FHighestEdgeIndexValue := FHighestEdgeIndexValue + 1;
 
     FEdges_ByUID.AddObject( edge.UID, edge, true );
-    FEdges_ByObject.AddObject( Integer( edge.Object_ ), edge, true );
+    if AObject <> nil then
+      FEdges_ByObject.AddObject( Integer( edge.Object_ ), edge, true );
   except
     on E:Exception do
       raise EBasicGraphError.Create( 'Не удалось добавить дугу. Сообщение ошибки:' + sLineBreak + E.Message );
@@ -1488,42 +1495,141 @@ end;
 {**********************************************************************************************
 * TBasicGraph.AddNode_ToEdge
 ***********************************************************************************************}
-function TBasicGraph.AddNode_ToEdge( ADividedEdge: TBasicGraphEdge;
-                                      AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False;
-                                      ANewEdge1_UID: Int64 = -1; ANewEdge1_Weight: Double = 1.0;
-                                      ANewEdge1_Object: TObject = nil; ANewEdge1_flOwnsObject: Boolean = false;
-                                      ANewEdge2_UID: Int64 = -1;
-                                      ANewEdge2_Object: TObject = nil; ANewEdge2_flOwnsObject: Boolean = false ):
-                                      TBasicGraphNode;
+function TBasicGraph.AddNode_ToEdge( AEdge: TBasicGraphEdge; ANode: TBasicGraphNode; AEdge_NewWeight: Double = 1.0;
+                                      ANewEdge_UID: Int64 = -1; ANewEdge_Object: TObject = nil;
+                                      ANewEdge_flOwnsObject: Boolean = false ):
+                                      Boolean;
 var
-  node: TBasicGraphNode;
-  newEdge1, newEdge2: TBasicGraphEdge;
-  newEdge2_Weight: Double;
+  newEdge: TBasicGraphEdge;
+  newEdge_Weight: Double;
 begin
+  Result := False;
+
   if ( FNodes_ByUID = nil )
   OR ( FNodes_ByObject = nil) then
     raise EBasicGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
 
-
-  newEdge2_Weight := ADividedEdge.Weight - ANewEdge1_Weight;
-  if ( newEdge2_Weight >= ADividedEdge.Weight )
-  OR ( newEdge2_Weight <= 0.0 ) then
-    raise EBasicGraphError.Create( 'Невозможно добавить узел на дугу с таким расстоянием от начала.' );
+  newEdge_Weight := AEdge.Weight - AEdge_NewWeight;
+  if ( newEdge_Weight >= AEdge.Weight )
+  OR ( newEdge_Weight <= 0.0 ) then
+    Exit;
 
   try
-    node := AddNode( AUID, AObject, AflOwnsObject );
-    newEdge1 := AddEdge( ADividedEdge.NodeFrom, node, ANewEdge1_UID, ANewEdge1_Weight, ANewEdge1_Object,
-                          ANewEdge1_flOwnsObject, ADividedEdge.FlBiDirected );
-    newEdge2 := AddEdge( node, ADividedEdge.NodeTo , ANewEdge2_UID, newEdge2_Weight, ANewEdge2_Object,
-                          ANewEdge2_flOwnsObject, ADividedEdge.FlBiDirected );
-    DeleteEdge( ADividedEdge );
+    AEdge.NodeTo.DeleteEdge( AEdge );
+    newEdge := AddEdge( ANode, AEdge.NodeTo, ANewEdge_UID, newEdge_Weight, ANewEdge_Object, ANewEdge_flOwnsObject,
+                        AEdge.FlBiDirected );
+    AEdge.NodeTo := ANode;
+    ANode.AddEdge( AEdge );    
+    AEdge.Weight := AEdge_NewWeight;
   except
     on E:Exception do
       raise EBasicGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
   end;
 
-  Result := node;
+  Result := True;
 
+end;
+
+{**********************************************************************************************
+* удалить узел и объединить входящую и выходящую дуги в одну.
+***********************************************************************************************}
+function TBasicGraph.DeleteNode_AndMergeEdges( ANode: TBasicGraphNode ): Boolean;
+var
+  edgeTo, edgeFrom: TBasicGraphEdge;
+begin
+  Result := false;
+
+  //если у узла не 1 входящая или не 1 выходящая или взодящая = выходящая дуга, то выйти и вернуть false
+  if ( ANode.GetEdgesCount( bgdTo ) <> 1 )
+    or ( ANode.GetEdgesCount( bgdFrom ) <> 1 )
+    or ( ANode.GetEdge_ByIndex( 0, bgdTo ) = ANode.GetEdge_ByIndex(0, bgdFrom ) )
+  then
+    Exit;
+
+  //получаем левую и правую дуги
+  edgeTo := ANode.GetEdge_ByIndex(0, bgdTo);
+  edgeFrom := ANode.getEdge_ByIndex(0, bgdFrom);
+  //изменяем параметры левой дуги, в том числе меняем её nodeTo
+  edgeTo.Weight := edgeTo.Weight + edgeFrom.Weight;
+  edgeTo.NodeTo := edgeFrom.NodeTo;
+  //удалим данные о дуге из удаляемого узла, чтобы он её не удалил
+  ANode.DeleteEdge( edgeTo );
+  //удалим узел - он удалит выходящую дугу самостоятельно
+  DeleteNode( ANode );
+  //добавляем левую дугу в список в правом узле
+  edgeTo.NodeTo.AddEdge( edgeTo );
+
+  Result := true;
+end;
+
+{**********************************************************************************************
+* Удалить узел по UID и объединить входящую и выходящую дуги в одну.
+***********************************************************************************************}
+function TBasicGraph.DeleteNode_AndMergeEdges_ByUID( AUID: Int64 ): Boolean;
+var
+  edgeTo, edgeFrom: TBasicGraphEdge;
+  aNode: TBasicGraphNode;
+begin
+  Result := false;
+
+  aNode := GetNode_ByUID( AUID );
+
+  //если у узла не 1 входящая или не 1 выходящая или взодящая = выходящая дуга, то выйти и вернуть false
+  if ( aNode.GetEdgesCount( bgdTo ) <> 1 )
+    or ( aNode.GetEdgesCount( bgdFrom ) <> 1 )
+    or ( aNode.GetEdge_ByIndex( 0, bgdTo ) = aNode.GetEdge_ByIndex(0, bgdFrom ) )
+  then
+    Exit;
+
+  //получаем левую и правую дуги
+  edgeTo := aNode.GetEdge_ByIndex(0, bgdTo);
+  edgeFrom := aNode.getEdge_ByIndex(0, bgdFrom);
+  //изменяем параметры левой дуги, в том числе меняем её nodeTo
+  edgeTo.Weight := edgeTo.Weight + edgeFrom.Weight;
+  edgeTo.NodeTo := edgeFrom.NodeTo;
+  //удалим данные о дуге из удаляемого узла, чтобы он её не удалил
+  aNode.DeleteEdge( edgeTo );
+  //удалим узел - он удалит выходящую дугу самостоятельно
+  DeleteNode( aNode );
+  //добавляем левую дугу в список в правом узле
+  edgeTo.NodeTo.AddEdge( edgeTo );
+
+  Result := true;
+end;
+
+{**********************************************************************************************
+* Удалить узел по объекту и объединить входящую и выходящую дуги в одну.
+***********************************************************************************************}
+function TBasicGraph.DeleteNode_AndMergeEdges_ByObject( AObject: TObject ): Boolean;
+var
+  edgeTo, edgeFrom: TBasicGraphEdge;
+  aNode: TBasicGraphNode;
+begin
+  Result := false;
+
+  aNode := GetNode_ByObject( AObject );
+
+  //если у узла не 1 входящая или не 1 выходящая или взодящая = выходящая дуга, то выйти и вернуть false
+  if ( aNode.GetEdgesCount( bgdTo ) <> 1 )
+    or ( aNode.GetEdgesCount( bgdFrom ) <> 1 )
+    or ( aNode.GetEdge_ByIndex( 0, bgdTo ) = aNode.GetEdge_ByIndex(0, bgdFrom ) )
+  then
+    Exit;
+
+  //получаем левую и правую дуги
+  edgeTo := aNode.GetEdge_ByIndex(0, bgdTo);
+  edgeFrom := aNode.getEdge_ByIndex(0, bgdFrom);
+  //изменяем параметры левой дуги, в том числе меняем её nodeTo
+  edgeTo.Weight := edgeTo.Weight + edgeFrom.Weight;
+  edgeTo.NodeTo := edgeFrom.NodeTo;
+  //удалим данные о дуге из удаляемого узла, чтобы он её не удалил
+  aNode.DeleteEdge( edgeTo );
+  //удалим узел - он удалит выходящую дугу самостоятельно
+  DeleteNode( aNode );
+  //добавляем левую дугу в список в правом узле
+  edgeTo.NodeTo.AddEdge( edgeTo );
+
+  Result := true;
 end;
 
 {**********************************************************************************************

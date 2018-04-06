@@ -11,22 +11,32 @@ File_8=SourceModule,'C:\projects\mappl_build\DBALib\dbaCore.pas',0,1,1,1,1,0,0
 File_9=SourceModule,'C:\projects\mappl_build\uni\uniStatusBar.pas',0,1,1,3,12,0,0
 
 [Modules]
-Module0=C:\projects\newGraph\testGraphForm.pas
-Module1=C:\projects\newGraph\basicGraph.pas
-Module2=C:\projects\mappl_build\Mappl\Graph.pas
-Module3=C:\projects\mappl_build\Mappl\MakeWay.pas
-Module4=C:\projects\mappl_build\Mappl\FindWay.pas
-Module5=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
-Module6=C:\projects\mappl_build\uni\uniHashContainer.pas
+Module0=C:\projects\newGraph\basicGraph.pas
+Module1=C:\projects\newGraph\testGraphForm.pas
+Module2=C:\projects\mappl_build\Mappl\MakeWay.pas
+Module3=C:\projects\mappl_build\uni\uniHashContainer.pas
+Module4=C:\projects\mappl_build\Mappl\Graph.pas
+Module5=C:\projects\mappl_build\Mappl\FindWay.pas
+Module6=C:\projects\mappl_build\Mappl\MakeWayUtils.pas
 Count=7
 EditWindowCount=1
+
+[C:\projects\newGraph\basicGraph.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
 
 [C:\projects\newGraph\testGraphForm.pas]
 ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[C:\projects\newGraph\basicGraph.pas]
+[C:\projects\mappl_build\Mappl\MakeWay.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\projects\mappl_build\uni\uniHashContainer.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -36,22 +46,12 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[C:\projects\mappl_build\Mappl\MakeWay.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=0
-
 [C:\projects\mappl_build\Mappl\FindWay.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
 [C:\projects\mappl_build\Mappl\MakeWayUtils.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
-[C:\projects\mappl_build\uni\uniHashContainer.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -66,7 +66,7 @@ FormOnTop=0
 
 [EditWindow0]
 ViewCount=7
-CurrentView=0
+CurrentView=1
 View0=0
 View1=1
 View2=2
@@ -97,16 +97,16 @@ BottomPanelData=0000040000000000A40600000000000002D3000000000000000100000000A100
 
 [View0]
 Module=C:\projects\newGraph\testGraphForm.pas
-CursorX=24
-CursorY=122
-TopLine=109
+CursorX=28
+CursorY=117
+TopLine=94
 LeftCol=1
 
 [View1]
 Module=C:\projects\newGraph\basicGraph.pas
-CursorX=21
-CursorY=148
-TopLine=140
+CursorX=58
+CursorY=140
+TopLine=125
 LeftCol=1
 
 [View2]

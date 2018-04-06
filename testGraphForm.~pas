@@ -124,10 +124,12 @@ begin
     graph := TBasicGraph.Create();
     graph.AddNode(1);
     graph.AddNode(2);
-    graph.AddEdge( graph.GetNode_ByUID(1), graph.GetNode_ByUID(2), 1, 2, nil, false, true );
-    path := Tlist.Create();
-    length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+    graph.AddEdge( graph.GetNode_ByUID(1), graph.GetNode_ByUID(2), 1, 2 );
+    
+    path := TList.Create();
 
+    length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+    
     txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
     for index := 0 to path.Count - 1 do
       txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
@@ -135,17 +137,36 @@ begin
     txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
     ShowMessage( txt );
 
-    graph.AddNode_ToEdge( graph.GetEdge_ByUID(1), 3, nil, false, 2, 1, nil, false, 3, nil, false );
-    FreeAndNil(path);
-    path := Tlist.Create();
-    length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+    graph.AddNode(3);
+    if graph.AddNode_ToEdge( graph.GetEdge_ByUID(1), graph.GetNode_ByUID(3), 2, 2 ) then
+    begin
+      FreeAndNil( path );
+      path := TList.Create();
 
-    txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
-    for index := 0 to path.Count - 1 do
-      txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
-    txt := txt + ' = End';
-    txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
-    ShowMessage( txt );
+      length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+    
+      txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
+      for index := 0 to path.Count - 1 do
+        txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
+      txt := txt + ' = End';
+      txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
+      ShowMessage( txt );
+
+      if graph.DeleteNode_AndMergeEdges_ByUID( 3 ) then
+      begin
+        FreeAndNil( path );
+        path := TList.Create();
+
+        length := graph.FindPath( graph.GetNode_ByUID( 1 ), graph.GetNode_ByUID( 2 ), path );
+    
+        txt := 'Start = ' + IntToStr( TBasicGraphEdge( path[ 0 ] ).NodeFrom.UID );
+        for index := 0 to path.Count - 1 do
+          txt := txt + ' ' + IntToStr( TBasicGraphEdge( path[ index ] ).NodeTo.UID );
+        txt := txt + ' = End';
+        txt := txt + sLineBreak + 'Length: ' + FloatToStr( length );
+        ShowMessage( txt );
+      end;
+    end;
 
   finally
     FreeAndNil( graph );

@@ -13,7 +13,8 @@ uses
   ExceptionLog7,
   Forms,
   testGraphForm in 'testGraphForm.pas' {Form1},
-  basicGraph in 'basicGraph.pas';
+  basicGraph in 'basicGraph.pas',
+  mgtGraph in 'mgtGraph.pas';
 
 {$R *.res}
 
