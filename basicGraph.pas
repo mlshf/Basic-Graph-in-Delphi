@@ -7,18 +7,18 @@ uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   uniBaseTypes;
 
 type
-  EBasicGraphError = class(Exception);
+  EGraphError = class(Exception);
 
-  TBasicGraphDirection = ( bgdFrom = 0, bgdTo = 1 );
+  TGraphDirection = ( gdFrom = 0, gdTo = 1 );
 
-  TBasicGraphDirectionArray = set of TBasicGraphDirection;
+  TGraphDirectionSet = set of TGraphDirection;
 
-  TBasicGraphDeletionMode = ( bgdmAllowOnlyTarget = 0, bgdmAllowTargetAndEdges = 1 );
+  TGraphDeletionMode = ( gdmAllowOnlyTarget = 0, gdmAllowTargetAndEdges = 1 );
 
   TBasicGraphEdge = class;
 
   TEdgeStruct = class
-  private
+  protected
     FEdge: TBasicGraphEdge;
     FCost: Double;
   public
@@ -30,7 +30,7 @@ type
   end;
 
   TEdgesQueueWithPriority = class
-  private
+  protected
     FQueue: TList;
   public
     constructor Create();
@@ -43,7 +43,7 @@ type
 
   //БАЗОВЫЙ КЛАСС - ОПИСАНИЕ УЗЛА ГРАФА
   TBasicGraphNode = class( TObject )
-  private
+  protected
     FIndex: Integer;
     //уникальный идентификатор
     FUID: Int64;
@@ -76,12 +76,12 @@ type
     procedure DeleteEdge_ByObject( AObject: TObject );
 
     //индекс узла-соседа в списке соседей To/From по UID
-    function IndexOfNeighbour_ByUID( AListDirection: TBasicGraphDirection; AUID: Int64 ): Integer;
+    function IndexOfNeighbour_ByUID( AListDirection: TGraphDirection; AUID: Int64 ): Integer;
     //индекс узла-соседа в списке соседей To/From по объекту
-    function IndexOfNeighbour_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): Integer;
+    function IndexOfNeighbour_ByObject( AListDirection: TGraphDirection; AObject: TObject ): Integer;
 
   public
-    constructor Create( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ); reintroduce;
+    constructor Create( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False );
 
     destructor Destroy(); override;
 
@@ -89,46 +89,46 @@ type
 
     //ПРОВЕРКА НАЛИЧИЯ УЗЛА-СОСЕДА
     //проверить наличие узла-соседа в списках соседей From/To/From&To
-    function HasNeighbour( ANode: TBasicGraphNode; AListDirections: TBasicGraphDirectionArray ): Boolean;
+    function HasNeighbour( ANode: TBasicGraphNode; AListDirections: TGraphDirectionSet ): Boolean;
     //проверить наличие узла-соседа в списках соседей From/To/From&To по UID
-    function HasNeighbour_ByUID( AUID: Int64; AListDirections: TBasicGraphDirectionArray ): Boolean;
+    function HasNeighbour_ByUID( AUID: Int64; AListDirections: TGraphDirectionSet ): Boolean;
     //проверить наличие узла-соседа в списках соседей From/To/From&To по ассоциированному объекту
-    function HasNeighbour_ByObject( AObject: TObject; AListDirections: TBasicGraphDirectionArray ): Boolean;
+    function HasNeighbour_ByObject( AObject: TObject; AListDirections: TGraphDirectionSet ): Boolean;
 
     //РАБОТА С УЗЛАМИ-СОСЕДЯМИ
     //возвращает количество узлов-соседей в списке From/To
-    function GetNeighboursCount( AListDirection: TBasicGraphDirection ): Integer;
+    function GetNeighboursCount( AListDirection: TGraphDirection ): Integer;
     //возвращает дугу по её индексу в списке From/To
-    function GetNeighbour_ByIndex( AIndex: Integer; AListDirection: TBasicGraphDirection ): TBasicGraphNode;
+    function GetNeighbour_ByIndex( AIndex: Integer; AListDirection: TGraphDirection ): TBasicGraphNode;
     //возвращает дугу по её UID, ищет в списках From/To/From&To
-    function GetNeighbour_ByUID( AUID: Int64; AListDirection: TBasicGraphDirection ): TBasicGraphNode;
+    function GetNeighbour_ByUID( AUID: Int64; AListDirection: TGraphDirection ): TBasicGraphNode;
     //возвращает дугу по ассоциированному с ней объекту, ищет в списках From/To/From&To
-    function GetNeighbour_ByObject( AObject: TObject; AListDirection: TBasicGraphDirection ): TBasicGraphNode;
+    function GetNeighbour_ByObject( AObject: TObject; AListDirection: TGraphDirection ): TBasicGraphNode;
 
     //----------------------------------------------------------------------------------------------------------------
 
     //индекс дуги в списке дуг To/From по UID
-    function IndexOfEdge_ByUID( AListDirection: TBasicGraphDirection; AUID: Int64 ): Integer;
+    function IndexOfEdge_ByUID( AListDirection: TGraphDirection; AUID: Int64 ): Integer;
     //индекс дуги в списке дуг To/From по объекту
-    function IndexOfEdge_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): Integer;
+    function IndexOfEdge_ByObject( AListDirection: TGraphDirection; AObject: TObject ): Integer;
 
     //ПРОВЕРКА НАЛИЧИЯ ДУГИ
     //проверить наличие дуги в списках дуг From/To/From&To
-    function HasEdge( AEdge: TBasicGraphEdge; AListDirections: TBasicGraphDirectionArray ): Boolean;
+    function HasEdge( AEdge: TBasicGraphEdge; AListDirections: TGraphDirectionSet ): Boolean;
     //проверить наличие дуги в списках дуг From/To/From&To по UID
-    function HasEdge_ByUID( AUID: Int64; AListDirections: TBasicGraphDirectionArray ): Boolean;
+    function HasEdge_ByUID( AUID: Int64; AListDirections: TGraphDirectionSet ): Boolean;
     //проверить наличие дуги в списках дуг From/To/From&To по ассоциированному объекту
-    function HasEdge_ByObject( AObject: TObject; AListDirections: TBasicGraphDirectionArray ): Boolean;
+    function HasEdge_ByObject( AObject: TObject; AListDirections: TGraphDirectionSet ): Boolean;
 
     //РАБОТА С ДУГАМИ
     //возвращает количество дуг в списке From/To
-    function GetEdgesCount( AListDirection: TBasicGraphDirection ): Integer;
+    function GetEdgesCount( AListDirection: TGraphDirection ): Integer;
     //возвращает дугу по её индексу в списке From/To
-    function GetEdge_ByIndex( AIndex: Integer; AListDirection: TBasicGraphDirection ): TBasicGraphEdge;
+    function GetEdge_ByIndex( AIndex: Integer; AListDirection: TGraphDirection ): TBasicGraphEdge;
     //возвращает дугу по её UID, ищет в списках From/To/From&To
-    function GetEdge_ByUID( AUID: Int64; AListDirection: TBasicGraphDirection ): TBasicGraphEdge;
+    function GetEdge_ByUID( AUID: Int64; AListDirection: TGraphDirection ): TBasicGraphEdge;
     //возвращает дугу по ассоциированному с ней объекту, ищет в списках From/To/From&To
-    function GetEdge_ByObject( AObject: TObject; AListDirection: TBasicGraphDirection ): TBasicGraphEdge;
+    function GetEdge_ByObject( AObject: TObject; AListDirection: TGraphDirection ): TBasicGraphEdge;
 
     //----------------------------------------------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ type
 
   //БАЗОВЫЙ КЛАСС - ОПИСАНИЕ ДУГИ ГРАФА
   TBasicGraphEdge = class( TObject )
-  private
+  protected
     FIndex: Integer;
     //Уникальный идентификатор
     FUID: Int64;
@@ -164,30 +164,34 @@ type
   public
     constructor Create( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
                         AflOwnsObject: Boolean = false; AflBiDirected: Boolean = false;
-                        AWeight: Double = 1.0 ); reintroduce;
+                        AWeight: Double = 1.0 );
 
     destructor Destroy(); override;
+
+    //геттеры
+    function GetNodeFrom(): TBasicGraphNode; virtual;
+    function GetNodeTo(): TBasicGraphNode; virtual;
 
     //сеттеры                    
     procedure SetObject( AObject: TObject );
     procedure SetFlOwnsObject( AflOwnsObject: boolean );
-    procedure SetNodeFrom( ANewNodeFrom: TBasicGraphNode );
-    procedure SetNodeTo( ANewNodeTo: TBasicGraphNode );
+    procedure SetNodeFrom( ANewNodeFrom: TBasicGraphNode ); virtual;
+    procedure SetNodeTo( ANewNodeTo: TBasicGraphNode ); virtual;
     procedure SetflBiDirected( AflBiDirected: Boolean );
     procedure SetWeight( AWeight: double );
 
     property UID: Int64 read FUID;
     property Object_: TObject read FObject write SetObject;
     property FlOwnsObject: Boolean read FflOwnsObject write SetFlOwnsObject;
-    property NodeFrom: TBasicGraphNode read FNodeFrom write SetNodeFrom;
-    property NodeTo: TBasicGraphNode read FNodeTo write SetNodeTo;
+    property NodeFrom: TBasicGraphNode read GetNodeFrom write SetNodeFrom;
+    property NodeTo: TBasicGraphNode read GetNodeFrom write SetNodeTo;
     property FlBiDirected: Boolean read FflBiDirected write FflBiDirected;
     property Weight: Double read FWeight write SetWeight;
     property EdgeIndex: Integer read FIndex;
   end;
 
   TBasicGraph = class( TObject )
-  private
+  protected
     FHighestNodeIndexValue: Integer;
     FHIghestEdgeIndexValue: Integer;
     //Хэш-контейнер, хранящий узел по UID. Обладает своими объектами.
@@ -200,26 +204,29 @@ type
     FEdges_ByObject: THashContainer;
 
   public
-    constructor Create(); reintroduce;
+    constructor Create();
 
     destructor Destroy(); override;
 
     //----------------------------------------------------------------------------------------------------------------
 
     //ДОБАВЛЕНИЕ УЗЛА
+    function CreateNode( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
+                          AflOwnsObject: Boolean = False ): TBasicGraphNode; virtual;
+
     //Добавить узел в список узлов, возвращает объект
-    function AddNode( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ): TBasicGraphNode;
+    function AddNode( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ): TBasicGraphNode; virtual;
 
     //УДАЛЕНИЕ УЗЛА
     //Удалить узел. Возвращает True при удачном удалении, False при невозможности удаления
     function DeleteNode( ANode: TBasicGraphNode;
-                          ADeletionMode: TBasicGraphDeletionMode = bgdmAllowOnlyTarget ): Boolean;
+                          ADeletionMode: TGraphDeletionMode = gdmAllowOnlyTarget ): Boolean;
     //Удалить узел по UID. Возвращает True при удачном удалении, False при невозможности удаления
     function DeleteNode_ByUID( AUID: Int64;
-                                    ADeletionMode: TBasicGraphDeletionMode = bgdmAllowOnlyTarget ): Boolean;
+                                    ADeletionMode: TGraphDeletionMode = gdmAllowOnlyTarget ): Boolean;
     //Удалить узел по объекту. Возвращает True при удачном удалении, False при невозможности удаления
     function DeleteNode_ByObject( AObject: TObject;
-                                  ADeletionMode: TBasicGraphDeletionMode = bgdmAllowOnlyTarget ): Boolean;
+                                  ADeletionMode: TGraphDeletionMode = gdmAllowOnlyTarget ): Boolean;
 
     //ПОИСК УЗЛА
     //получние узла по его UID
@@ -469,13 +476,13 @@ procedure TBasicGraphNode.AddEdge( AEdge: TBasicGraphEdge );
 
 begin
   if AEdge = nil then
-    raise EBasicGraphError.Create( 'Невозможно добавить дугу в список дуг узла, т.к. дуга нулевая (nil).' );
+    raise EGraphError.Create( 'Невозможно добавить дугу в список дуг узла, т.к. дуга нулевая (nil).' );
 
   if ( FEdgesList_To = nil )
     OR ( FEdgesList_From = nil )
     OR ( FNeighboursList_To = nil )
     OR ( FNeighboursList_From = nil ) then
-    raise EBasicGraphError.Create( 'Один из списков дуг/соседей нулевой (nil).' );
+    raise EGraphError.Create( 'Один из списков дуг/соседей нулевой (nil).' );
 
   try
     //если дуга двунаправленная
@@ -497,13 +504,13 @@ begin
           AddEdge_ToSelf( AEdge );  
         end
         else
-          raise EBasicGraphError.Create( 'Попытка добавить в список дуг узла дугу, не связанную с этим узлом!' );
+          raise EGraphError.Create( 'Попытка добавить в список дуг узла дугу, не связанную с этим узлом!' );
       end;
     
     end;
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось добавить дугу в список дуг.' + sLineBreak + 'Сообщение об ошибке:' +
+      raise EGraphError.Create( 'Не удалось добавить дугу в список дуг.' + sLineBreak + 'Сообщение об ошибке:' +
                                       sLineBreak + E.Message );
   end;
 end;
@@ -568,10 +575,10 @@ var
   index: Integer;
 begin
   if AEdge = nil then
-    raise EBasicGraphError.Create( 'Невозможно удалить дугу, поскольку она нулевая (nil).' );
+    raise EGraphError.Create( 'Невозможно удалить дугу, поскольку она нулевая (nil).' );
 
   if ( FEdgesList_To = nil ) OR ( FEdgesList_From = nil ) then
-    raise EBasicGraphError.Create( 'Не инициализирован список дуг, в которые входит узел.' );
+    raise EGraphError.Create( 'Не инициализирован список дуг, в которые входит узел.' );
   try
     //найти и удалить дугу (а при необходимости, удалить и узлы-соседи) в списке дуг, входящих в узел
     index := FEdgesList_To.IndexOf( AEdge );
@@ -584,7 +591,7 @@ begin
       DeleteEdgeAndNeighbour_From( index, AEdge.NodeTo );
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить дугу из списка дуг.' + sLineBreak + 'Сообщение об ошибке:' +
+      raise EGraphError.Create( 'Не удалось удалить дугу из списка дуг.' + sLineBreak + 'Сообщение об ошибке:' +
                                       sLineBreak + E.Message );
   end;
 end;
@@ -597,21 +604,21 @@ var
   index: integer;
 begin       
   if ( FEdgesList_To = nil ) OR ( FEdgesList_From = nil ) then
-    raise EBasicGraphError.Create( 'Не инициализирован список дуг, в которые входит узел.' );
+    raise EGraphError.Create( 'Не инициализирован список дуг, в которые входит узел.' );
     
   try
     //найти и удалить дугу (а при необходимости, удалить и узлы-соседи) в списке дуг, входящих в узел
-    index := IndexOfEdge_ByUID( bgdTo, AUID );
+    index := IndexOfEdge_ByUID( gdTo, AUID );
     if index >= 0 then
       DeleteEdgeAndNeighbour_To( index, TBasicGraphEdge( FEdgesList_To[ index ] ).NodeFrom );
 
     //найти и удалить дугу (а при необходимости, удалить и узлы-соседи) в списке дуг, выходящих из узла
-    index := IndexOfEdge_ByUID( bgdFrom, AUID );
+    index := IndexOfEdge_ByUID( gdFrom, AUID );
     if index >= 0 then
       DeleteEdgeAndNeighbour_From( index, TBasicGraphEdge( FEdgesList_From[ index ] ).NodeTo );
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить дугу из списка дуг.' + sLineBreak + 'Сообщение ошибки:' +
+      raise EGraphError.Create( 'Не удалось удалить дугу из списка дуг.' + sLineBreak + 'Сообщение ошибки:' +
                                       sLineBreak + E.Message );
   end;
 end;
@@ -624,21 +631,21 @@ var
   index: integer;
 begin       
   if ( FEdgesList_To = nil ) OR ( FEdgesList_From = nil ) then
-    raise EBasicGraphError.Create( 'Не инициализирован список дуг, в которые входит узел.' );
+    raise EGraphError.Create( 'Не инициализирован список дуг, в которые входит узел.' );
     
   try
     //найти и удалить дугу (а при необходимости, удалить и узлы-соседи) в списке дуг, входящих в узел
-    index := IndexOfEdge_ByObject( bgdTo, AObject );
+    index := IndexOfEdge_ByObject( gdTo, AObject );
     if index >= 0 then
       DeleteEdgeAndNeighbour_To( index, TBasicGraphEdge( FEdgesList_To[ index ] ).NodeFrom );
 
     //найти и удалить дугу (а при необходимости, удалить и узлы-соседи) в списке дуг, выходящих из узла
-    index := IndexOfEdge_ByObject( bgdFrom, AObject );
+    index := IndexOfEdge_ByObject( gdFrom, AObject );
     if index >= 0 then
       DeleteEdgeAndNeighbour_From( index, TBasicGraphEdge( FEdgesList_From[ index ] ).NodeTo );
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить дугу из списка дуг.' + sLineBreak + 'Сообщение ошибки:' +
+      raise EGraphError.Create( 'Не удалось удалить дугу из списка дуг.' + sLineBreak + 'Сообщение ошибки:' +
                                       sLineBreak + E.Message );
   end;
 end;
@@ -647,16 +654,16 @@ end;
 * TBasicGraphNode.HasNeighbour
 * проверить наличие узла-соседа в списках соседей From/To/From&To
 ***********************************************************************************************}
-function TBasicGraphNode.HasNeighbour( ANode: TBasicGraphNode; AListDirections: TBasicGraphDirectionArray ): Boolean;
+function TBasicGraphNode.HasNeighbour( ANode: TBasicGraphNode; AListDirections: TGraphDirectionSet ): Boolean;
 begin
   Result := false;
 
   if ( FNeighboursList_To = nil )
   OR ( FNeighboursList_From = nil) then
-   raise EBasicGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
+   raise EGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
 
   //если в списке есть направление "To", то проверим наличие узла в списке NeighborsList_To
-  if ( bgdTo in AListDirections )
+  if ( gdTo in AListDirections )
   AND ( FNeighboursList_To.IndexOf( ANode ) >= 0 )
   then
   begin
@@ -665,7 +672,7 @@ begin
   end;
 
   //если в списке есть направление "From", то проверим наличие узла в списке NeighborsList_From
-  if ( bgdFrom in AListDirections )
+  if ( gdFrom in AListDirections )
   AND ( FNeighboursList_From.IndexOf( ANode ) >= 0 )
   then
   begin
@@ -677,16 +684,16 @@ end;
 {**********************************************************************************************
 * TBasicGraphNode.IndexOfNeighbour_ByUID
 ***********************************************************************************************}
-function TBasicGraphNode.IndexOfNeighbour_ByUID( AListDirection: TBasicGraphDirection; AUID: Int64 ): Integer;
+function TBasicGraphNode.IndexOfNeighbour_ByUID( AListDirection: TGraphDirection; AUID: Int64 ): Integer;
 var
   aNeighboursList: TList;
 begin
   Result := -1;
   aNeighboursList := nil;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     aNeighboursList := FNeighboursList_To
-  else if AListDirection = bgdFrom then
+  else if AListDirection = gdFrom then
     aNeighboursList := FNeighboursList_From;
 
   //если нет элементов или список пуст, вернуть -1
@@ -706,16 +713,16 @@ end;
 {**********************************************************************************************
 * TBasicGraphNode.IndexOfNeighbour_ByObject
 ***********************************************************************************************}
-function TBasicGraphNode.IndexOfNeighbour_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): Integer;
+function TBasicGraphNode.IndexOfNeighbour_ByObject( AListDirection: TGraphDirection; AObject: TObject ): Integer;
 var
   aNeighboursList: TList;
 begin
   Result := -1;
   aNeighboursList := nil;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     aNeighboursList := FNeighboursList_To
-  else if AListDirection = bgdFrom then
+  else if AListDirection = gdFrom then
     aNeighboursList := FNeighboursList_From;
 
   //если нет элементов или список пуст, вернуть -1
@@ -736,17 +743,17 @@ end;
 * TBasicGraphNode.HasNeighbour_ByUID
 *проверить наличие узла-соседа в списках соседей From/To/From&To по UID
 ***********************************************************************************************}
-function TBasicGraphNode.HasNeighbour_ByUID( AUID: Int64; AListDirections: TBasicGraphDirectionArray ): Boolean;
+function TBasicGraphNode.HasNeighbour_ByUID( AUID: Int64; AListDirections: TGraphDirectionSet ): Boolean;
 begin
   Result := false;
 
   if ( FNeighboursList_To = nil )
   OR ( FNeighboursList_From = nil) then
-   raise EBasicGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
+   raise EGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
 
   //если в списке есть направление "To", то проверим наличие узла в списке NeighborsList_To
-  if ( bgdTo in AListDirections )
-  AND ( IndexOfNeighbour_ByUID( bgdTo, AUID) >= 0 )
+  if ( gdTo in AListDirections )
+  AND ( IndexOfNeighbour_ByUID( gdTo, AUID) >= 0 )
   then
   begin
     Result := True;
@@ -754,8 +761,8 @@ begin
   end;
 
   //если в списке есть направление "From", то проверим наличие узла в списке NeighborsList_From
-  if ( bgdFrom in AListDirections )
-  AND ( IndexOfNeighbour_ByUID( bgdFrom, AUID) >= 0 )
+  if ( gdFrom in AListDirections )
+  AND ( IndexOfNeighbour_ByUID( gdFrom, AUID) >= 0 )
   then
   begin
     Result := True;
@@ -767,17 +774,17 @@ end;
 * TBasicGraphNode.HasNeighbour_ByObject
 * проверить наличие узла-соседа в списках соседей From/To/From&To по ассоциированному объекту
 ***********************************************************************************************}
-function TBasicGraphNode.HasNeighbour_ByObject( AObject: TObject; AListDirections: TBasicGraphDirectionArray ): Boolean;
+function TBasicGraphNode.HasNeighbour_ByObject( AObject: TObject; AListDirections: TGraphDirectionSet ): Boolean;
 begin
   Result := false;
 
   if ( FNeighboursList_To = nil )
   OR ( FNeighboursList_From = nil) then
-    raise EBasicGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
+    raise EGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
 
   //если в списке есть направление "To", то проверим наличие узла в списке NeighborsList_To
-  if ( bgdTo in AListDirections )
-  AND ( IndexOfNeighbour_ByObject( bgdTo, AObject) >= 0 )
+  if ( gdTo in AListDirections )
+  AND ( IndexOfNeighbour_ByObject( gdTo, AObject) >= 0 )
   then
   begin
     Result := True;
@@ -785,8 +792,8 @@ begin
   end;
 
   //если в списке есть направление "From", то проверим наличие узла в списке NeighborsList_From
-  if ( bgdFrom in AListDirections )
-  AND ( IndexOfNeighbour_ByObject( bgdFrom, AObject) >= 0 )
+  if ( gdFrom in AListDirections )
+  AND ( IndexOfNeighbour_ByObject( gdFrom, AObject) >= 0 )
   then
   begin
     Result := True;
@@ -798,13 +805,13 @@ end;
 * TBasicGraphNode.GetNeighboursCount
 * возвращает количество узлов-соседей в списке From/To
 ***********************************************************************************************}
-function TBasicGraphNode.GetNeighboursCount( AListDirection: TBasicGraphDirection ): Integer;
+function TBasicGraphNode.GetNeighboursCount( AListDirection: TGraphDirection ): Integer;
 begin
   Result := -1;
   
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := FNeighboursList_To.Count
-  else if AListDirection = bgdFrom then
+  else if AListDirection = gdFrom then
     Result := FNeighboursList_From.Count
 end;
 
@@ -812,21 +819,21 @@ end;
 * TBasicGraphNode.GetNeighbour_ByIndex
 * возвращает дугу по её индексу в списке From/To
 ***********************************************************************************************}
-function TBasicGraphNode.GetNeighbour_ByIndex( AIndex: Integer; AListDirection: TBasicGraphDirection ): TBasicGraphNode;
+function TBasicGraphNode.GetNeighbour_ByIndex( AIndex: Integer; AListDirection: TGraphDirection ): TBasicGraphNode;
 begin
   Result := nil;
   
   if ( AIndex < 0 )
-  OR ( ( AListDirection = bgdTo )
+  OR ( ( AListDirection = gdTo )
       AND ( AIndex >= FNeighboursList_To.Count ) )
-  OR ( ( AListDirection = bgdFrom )
+  OR ( ( AListDirection = gdFrom )
       AND ( AIndex >= FNeighboursList_From.Count ) ) then
     Exit;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := TBasicGraphNode( FNeighboursList_To[ AIndex ] );
 
-  if AListDirection = bgdFrom then
+  if AListDirection = gdFrom then
     Result := TBasicGraphNode( FNeighboursList_From[ AIndex ] );
 end;
 
@@ -834,7 +841,7 @@ end;
 * TBasicGraphNode.GetNeighbour_ByUID
 * возвращает дугу по её UID, ищет в списках From/To/From&To
 ***********************************************************************************************}
-function TBasicGraphNode.GetNeighbour_ByUID( AUID: Int64; AListDirection: TBasicGraphDirection ): TbasicGraphNode;
+function TBasicGraphNode.GetNeighbour_ByUID( AUID: Int64; AListDirection: TGraphDirection ): TbasicGraphNode;
 var
   index: Integer;
 begin
@@ -845,10 +852,10 @@ begin
   if index < 0 then
     Exit;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := TBasicGraphNode( FNeighboursList_To[ index ] );
 
-  if AListDirection = bgdFrom then
+  if AListDirection = gdFrom then
     Result := TBasicGraphNode( FNeighboursList_From[ index ] );
 end;
 
@@ -856,7 +863,7 @@ end;
 * TBasicGraphNode.GetNeighbour_ByObject   
 * возвращает дугу по ассоциированному с ней объекту, ищет в списках From/To/From&To
 ***********************************************************************************************}
-function TBasicGraphNode.GetNeighbour_ByObject( AObject: TObject; AListDirection: TBasicGraphDirection ): TbasicGraphNode;
+function TBasicGraphNode.GetNeighbour_ByObject( AObject: TObject; AListDirection: TGraphDirection ): TbasicGraphNode;
 var
   index: Integer;
 begin
@@ -867,10 +874,10 @@ begin
   if index < 0 then
     Exit;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := TBasicGraphNode( FNeighboursList_To[ index ] );
 
-  if AListDirection = bgdFrom then
+  if AListDirection = gdFrom then
     Result := TBasicGraphNode( FNeighboursList_From[ index ] );
 end;
 
@@ -878,16 +885,16 @@ end;
 * TBasicGraphNode.HasEdge
 * проверить наличие дуги в списках дуг From/To/From&To
 ***********************************************************************************************}
-function TBasicGraphNode.HasEdge( AEdge: TBasicGraphEdge; AListDirections: TBasicGraphDirectionArray ): Boolean;
+function TBasicGraphNode.HasEdge( AEdge: TBasicGraphEdge; AListDirections: TGraphDirectionSet ): Boolean;
 begin
   Result := false;
 
   if ( FEdgesList_To = nil )
   OR ( FEdgesList_From = nil) then
-   raise EBasicGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
+   raise EGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
 
   //если в списке есть направление "To", то проверим наличие узла в списке NeighborsList_To
-  if ( bgdTo in AListDirections )
+  if ( gdTo in AListDirections )
   AND ( FEdgesList_To.IndexOf( AEdge ) >= 0 )
   then
   begin
@@ -896,7 +903,7 @@ begin
   end;
 
   //если в списке есть направление "From", то проверим наличие узла в списке NeighborsList_From
-  if ( bgdFrom in AListDirections )
+  if ( gdFrom in AListDirections )
   AND ( FEdgesList_From.IndexOf( AEdge ) >= 0 )
   then
   begin
@@ -908,16 +915,16 @@ end;
 {**********************************************************************************************
 * TBasicGraphNode.IndexOfEdge_ByUID
 ***********************************************************************************************}
-function TBasicGraphNode.IndexOfEdge_ByUID( AListDirection: TBasicGraphDirection; AUID: Int64 ): integer;
+function TBasicGraphNode.IndexOfEdge_ByUID( AListDirection: TGraphDirection; AUID: Int64 ): integer;
 var
   aEdgesList: TList;
 begin
   Result := -1;
   aEdgesList := nil;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     aEdgesList := FEdgesList_To
-  else if AListDirection = bgdFrom then
+  else if AListDirection = gdFrom then
     aEdgesList := FEdgesList_From;
 
   //если нет элементов или список пуст, вернуть -1
@@ -937,16 +944,16 @@ end;
 {**********************************************************************************************
 * TBasicGraphNode.IndexOfEdge_ByObject
 ***********************************************************************************************}
-function TBasicGraphNode.IndexOfEdge_ByObject( AListDirection: TBasicGraphDirection; AObject: TObject ): integer;
+function TBasicGraphNode.IndexOfEdge_ByObject( AListDirection: TGraphDirection; AObject: TObject ): integer;
 var
   aEdgesList: TList;
 begin
   Result := -1;
   aEdgesList := nil;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     aEdgesList := FEdgesList_To
-  else if AListDirection = bgdFrom then
+  else if AListDirection = gdFrom then
     aEdgesList := FEdgesList_From;
 
   //если нет элементов или список пуст, вернуть -1
@@ -967,17 +974,17 @@ end;
 * TBasicGraphNode.HasEdge_ByUID
 * проверить наличие дуги в списках дуг From/To/From&To по UID
 ***********************************************************************************************}
-function TBasicGraphNode.HasEdge_ByUID( AUID: Int64; AListDirections: TBasicGraphDirectionArray ): Boolean;
+function TBasicGraphNode.HasEdge_ByUID( AUID: Int64; AListDirections: TGraphDirectionSet ): Boolean;
 begin
   Result := false;
 
   if ( FEdgesList_To = nil )
   OR ( FEdgesList_From = nil) then
-   raise EBasicGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
+   raise EGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
 
   //если в списке есть направление "To", то проверим наличие узла в списке NeighborsList_To
-  if ( bgdTo in AListDirections )
-  AND ( IndexOfEdge_ByUID( bgdTo, AUID ) >= 0 )
+  if ( gdTo in AListDirections )
+  AND ( IndexOfEdge_ByUID( gdTo, AUID ) >= 0 )
   then
   begin
     Result := True;
@@ -985,8 +992,8 @@ begin
   end;
 
   //если в списке есть направление "From", то проверим наличие узла в списке NeighborsList_From
-  if ( bgdFrom in AListDirections )
-  AND ( IndexOfEdge_ByUID( bgdFrom, AUID ) >= 0 )
+  if ( gdFrom in AListDirections )
+  AND ( IndexOfEdge_ByUID( gdFrom, AUID ) >= 0 )
   then
   begin
     Result := True;
@@ -998,17 +1005,17 @@ end;
 * TBasicGraphNode.HasEdge_ByObject
 * проверить наличие дуги в списках дуг From/To/From&To по ассоциированному объекту
 ***********************************************************************************************}
-function TBasicGraphNode.HasEdge_ByObject( AObject: TObject; AListDirections: TBasicGraphDirectionArray ): Boolean;
+function TBasicGraphNode.HasEdge_ByObject( AObject: TObject; AListDirections: TGraphDirectionSet ): Boolean;
 begin
   Result := false;
 
   if ( FEdgesList_To = nil )
   OR ( FEdgesList_From = nil) then
-   raise EBasicGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
+   raise EGraphError.Create( 'Не инициализированы списки соседей узла (nil).' );
 
   //если в списке есть направление "To", то проверим наличие узла в списке NeighborsList_To
-  if ( bgdTo in AListDirections )
-  AND ( IndexOfEdge_ByObject( bgdTo, AObject ) >= 0 )
+  if ( gdTo in AListDirections )
+  AND ( IndexOfEdge_ByObject( gdTo, AObject ) >= 0 )
   then
   begin
     Result := True;
@@ -1016,8 +1023,8 @@ begin
   end;
 
   //если в списке есть направление "From", то проверим наличие узла в списке NeighborsList_From
-  if ( bgdFrom in AListDirections )
-  AND ( IndexOfEdge_ByObject( bgdFrom, AObject ) >= 0 )
+  if ( gdFrom in AListDirections )
+  AND ( IndexOfEdge_ByObject( gdFrom, AObject ) >= 0 )
   then
   begin
     Result := True;
@@ -1029,13 +1036,13 @@ end;
 * TBasicGraphNode.GetEdgesCount
 * возвращает количество дуг в списке From/To
 ***********************************************************************************************}
-function TBasicGraphNode.GetEdgesCount( AListDirection: TBasicGraphDirection ): Integer;
+function TBasicGraphNode.GetEdgesCount( AListDirection: TGraphDirection ): Integer;
 begin
   Result := -1;
   
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := FEdgesList_To.Count
-  else if AListDirection = bgdFrom then
+  else if AListDirection = gdFrom then
     Result := FEdgesList_From.Count
 end;
 
@@ -1043,21 +1050,21 @@ end;
 * TBasicGraphNode.GetEdge_ByIndex
 * возвращает дугу по её индексу в списке From/To
 ***********************************************************************************************}
-function TBasicGraphNode.GetEdge_ByIndex( AIndex: Integer; AListDirection: TBasicGraphDirection ): TBasicGraphEdge;
+function TBasicGraphNode.GetEdge_ByIndex( AIndex: Integer; AListDirection: TGraphDirection ): TBasicGraphEdge;
 begin
   Result := nil;
   
   if ( AIndex < 0 )
-  OR ( ( AListDirection = bgdTo )
+  OR ( ( AListDirection = gdTo )
       AND ( AIndex >= FEdgesList_To.Count ) )
-  OR ( ( AListDirection = bgdFrom )
+  OR ( ( AListDirection = gdFrom )
       AND ( AIndex >= FEdgesList_From.Count ) ) then
     Exit;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := TBasicGraphEdge( FEdgesList_To[ AIndex ] );
 
-  if AListDirection = bgdFrom then
+  if AListDirection = gdFrom then
     Result := TBasicGraphEdge( FEdgesList_From[ AIndex ] );
 end;
 
@@ -1065,7 +1072,7 @@ end;
 * TBasicGraphNode.GetEdge_ByUID
 * возвращает дугу по её UID, ищет в списках From/To/From&To
 ***********************************************************************************************}
-function TBasicGraphNode.GetEdge_ByUID( AUID: Int64; AListDirection: TBasicGraphDirection ): TbasicGraphEdge;
+function TBasicGraphNode.GetEdge_ByUID( AUID: Int64; AListDirection: TGraphDirection ): TbasicGraphEdge;
 var
   index: integer;
 begin
@@ -1076,10 +1083,10 @@ begin
   if index < 0 then
     Exit;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := TBasicGraphEdge( FEdgesList_To[ index ] );
 
-  if AListDirection = bgdFrom then
+  if AListDirection = gdFrom then
     Result := TBasicGraphEdge( FEdgesList_From[ index ] );
 end;
 
@@ -1087,7 +1094,7 @@ end;
 * TBasicGraphNode.GetEdge_ByObject
 * возвращает дугу по ассоциированному с ней объекту, ищет в списках From/To/From&To
 ***********************************************************************************************}
-function TBasicGraphNode.GetEdge_ByObject( AObject: TObject; AListDirection: TBasicGraphDirection ): TbasicGraphEdge;
+function TBasicGraphNode.GetEdge_ByObject( AObject: TObject; AListDirection: TGraphDirection ): TbasicGraphEdge;
 var
   index: integer;
 begin
@@ -1098,10 +1105,10 @@ begin
   if index < 0 then
     Exit;
 
-  if AListDirection = bgdTo then
+  if AListDirection = gdTo then
     Result := TBasicGraphEdge( FEdgesList_To[ index ] );
 
-  if AListDirection = bgdFrom then
+  if AListDirection = gdFrom then
     Result := TBasicGraphEdge( FEdgesList_From[ index ] );
 end;
 
@@ -1121,6 +1128,22 @@ end;
 procedure TBasicGraphEdge.SetFlOwnsObject( AflOwnsObject: boolean );
 begin
   Self.FflOwnsObject := flOwnsObject;
+end;
+
+{**********************************************************************************************
+* TBasicGraphEdge.GetNodeFrom
+***********************************************************************************************}
+function TBasicGraphEdge.GetNodeFrom(): TBasicGraphNode;
+begin
+  Result := Self.FNodeFrom;
+end;
+
+{**********************************************************************************************
+* TBasicGraphEdge.GetNodeTo
+***********************************************************************************************}
+function TBasicGraphEdge.GetNodeTo(): TBasicGraphNode;
+begin
+  Result := Self.FNodeTo;
 end;
 
 {**********************************************************************************************
@@ -1165,7 +1188,7 @@ begin
   inherited Create();
 
   if ( ANodeFrom = nil ) or ( ANodeTo = nil ) then
-    raise EBasicGraphError.Create( 'Оба узла дуги должны существовать (не nil).' );
+    raise EGraphError.Create( 'Оба узла дуги должны существовать (не nil).' );
 
   FIndex := AIndex;
   FUID := AUID;
@@ -1224,6 +1247,15 @@ begin
 end;
 
 {**********************************************************************************************
+* TBasicGraph.CreateNode
+***********************************************************************************************}
+function TBasicGraph.CreateNode( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
+                                  AflOwnsObject: Boolean = False ): TBasicGraphNode;
+begin
+  Result := TBasicGraphNode.Create( AUID, FHighestNodeIndexValue, AObject, AflOwnsObject );
+end;
+
+{**********************************************************************************************
 * TBasicGraph.AddNode
 * добавить узел в список узлов, возвращает индекс
 ***********************************************************************************************}
@@ -1233,10 +1265,10 @@ var
 begin
   if ( FNodes_ByUID = nil )
   OR ( FNodes_ByObject = nil) then
-    raise EBasicGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
+    raise EGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
 
   try
-    node := TBasicGraphNode.Create( AUID, FHighestNodeIndexValue, AObject, AflOwnsObject );
+    node := CreateNode( AUID, FHighestNodeIndexValue, AObject, AflOwnsObject );
     FHighestNodeIndexValue := FHighestNodeIndexValue + 1;
 
     FNodes_ByUID.AddObject( node.UID, node, true );
@@ -1244,7 +1276,7 @@ begin
       FNodes_ByObject.AddObject( Integer( node.Object_ ), node, true );
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
   end;
 
   Result := node;
@@ -1254,25 +1286,25 @@ end;
 * TBasicGraph.DeleteNode
 ***********************************************************************************************}
 function TBasicGraph.DeleteNode( ANode: TBasicGraphNode;
-                                 ADeletionMode: TBasicGraphDeletionMode = bgdmAllowOnlyTarget ): Boolean;
+                                 ADeletionMode: TGraphDeletionMode = gdmAllowOnlyTarget ): Boolean;
 var
   index: integer;
 begin
   //раз удаляется узел, то наверно надо удалить и дуги, в которые он входит
   Result := false;
 
-  if ( ANode.GetEdgesCount( bgdTo ) + ANode.GetEdgesCount( bgdFrom ) > 0 )
-  and ( ADeletionMode = bgdmAllowOnlyTarget ) then
+  if ( ANode.GetEdgesCount( gdTo ) + ANode.GetEdgesCount( gdFrom ) > 0 )
+  and ( ADeletionMode = gdmAllowOnlyTarget ) then
     Exit;
 
   try
     //удаляем из графа дуги, входящие в узел
-    for index := 0 to ANode.GetEdgesCount( bgdTo ) - 1 do
-      DeleteEdge( ANode.GetEdge_ByIndex( index, bgdTo ) );
+    for index := 0 to ANode.GetEdgesCount( gdTo ) - 1 do
+      DeleteEdge( ANode.GetEdge_ByIndex( index, gdTo ) );
 
     //удаляем из графа дуги, выходящие из узла
-    for index := 0 to ANode.GetEdgesCount( bgdFrom ) - 1 do
-      DeleteEdge( ANode.GetEdge_ByIndex( index, bgdFrom ) );
+    for index := 0 to ANode.GetEdgesCount( gdFrom ) - 1 do
+      DeleteEdge( ANode.GetEdge_ByIndex( index, gdFrom ) );
 
     //удаляем из графа узел
     FNodes_ByUID.DelObject( ANode.UID, ANode );
@@ -1281,7 +1313,7 @@ begin
     Result := true;
   except
     on E: Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
   end;
 end;
 
@@ -1289,7 +1321,7 @@ end;
 * TBasicGraph.DeleteNode_ByUID
 ***********************************************************************************************}
 function TBasicGraph.DeleteNode_ByUID( AUID: Int64;
-                                       ADeletionMode: TBasicGraphDeletionMode = bgdmAllowOnlyTarget ): Boolean;
+                                       ADeletionMode: TGraphDeletionMode = gdmAllowOnlyTarget ): Boolean;
 var
   index: integer;
   aNode: TBasicGraphNode;
@@ -1299,18 +1331,18 @@ begin
 
   aNode := GetNode_ByUID( AUID );
 
-  if ( aNode.GetEdgesCount( bgdTo ) + aNode.GetEdgesCount( bgdFrom ) > 0 )
-  and ( ADeletionMode = bgdmAllowOnlyTarget ) then
+  if ( aNode.GetEdgesCount( gdTo ) + aNode.GetEdgesCount( gdFrom ) > 0 )
+  and ( ADeletionMode = gdmAllowOnlyTarget ) then
     Exit;
 
   try
     //удаляем из графа дуги, входящие в узел
-    for index := 0 to ANode.GetEdgesCount( bgdTo ) - 1 do
-      DeleteEdge( ANode.GetEdge_ByIndex( index, bgdTo ) );
+    for index := 0 to ANode.GetEdgesCount( gdTo ) - 1 do
+      DeleteEdge( ANode.GetEdge_ByIndex( index, gdTo ) );
 
     //удаляем из графа дуги, выходящие из узла
-    for index := 0 to ANode.GetEdgesCount( bgdFrom ) - 1 do
-      DeleteEdge( ANode.GetEdge_ByIndex( index, bgdFrom ) );
+    for index := 0 to ANode.GetEdgesCount( gdFrom ) - 1 do
+      DeleteEdge( ANode.GetEdge_ByIndex( index, gdFrom ) );
 
     //удаляем из графа узел
     FNodes_ByUID.DelObject( ANode.UID, ANode );
@@ -1319,7 +1351,7 @@ begin
     Result := true;
   except
     on E: Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
   end;
 end;
 
@@ -1327,7 +1359,7 @@ end;
 * TBasicGraph.DeleteNode_ByObject
 ***********************************************************************************************}
 function TBasicGraph.DeleteNode_ByObject( AObject: TObject;
-                                       ADeletionMode: TBasicGraphDeletionMode = bgdmAllowOnlyTarget ): Boolean;
+                                       ADeletionMode: TGraphDeletionMode = gdmAllowOnlyTarget ): Boolean;
 var
   index: integer;
   aNode: TBasicGraphNode;
@@ -1337,18 +1369,18 @@ begin
 
   aNode := GetNode_ByObject( AObject );
 
-  if ( aNode.GetEdgesCount( bgdTo ) + aNode.GetEdgesCount( bgdFrom ) > 0 )
-  and ( ADeletionMode = bgdmAllowOnlyTarget ) then
+  if ( aNode.GetEdgesCount( gdTo ) + aNode.GetEdgesCount( gdFrom ) > 0 )
+  and ( ADeletionMode = gdmAllowOnlyTarget ) then
     Exit;
 
   try
     //удаляем из графа дуги, входящие в узел
-    for index := 0 to ANode.GetEdgesCount( bgdTo ) - 1 do
-      DeleteEdge( ANode.GetEdge_ByIndex( index, bgdTo ) );
+    for index := 0 to ANode.GetEdgesCount( gdTo ) - 1 do
+      DeleteEdge( ANode.GetEdge_ByIndex( index, gdTo ) );
 
     //удаляем из графа дуги, выходящие из узла
-    for index := 0 to ANode.GetEdgesCount( bgdFrom ) - 1 do
-      DeleteEdge( ANode.GetEdge_ByIndex( index, bgdFrom ) );
+    for index := 0 to ANode.GetEdgesCount( gdFrom ) - 1 do
+      DeleteEdge( ANode.GetEdge_ByIndex( index, gdFrom ) );
 
     //удаляем из графа узел
     FNodes_ByUID.DelObject( ANode.UID, ANode );
@@ -1357,7 +1389,7 @@ begin
     Result := true;
   except
     on E: Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
   end;
 end;
 
@@ -1389,7 +1421,7 @@ var
 begin
   if ( FEdges_ByUID = nil )
   OR ( FEdges_ByObject = nil) then
-    raise EBasicGraphError.Create( 'Невозможно добавить дугу в несуществующий (nil) список дуг.' );
+    raise EGraphError.Create( 'Невозможно добавить дугу в несуществующий (nil) список дуг.' );
 
   try
     edge := TBasicGraphEdge.Create( ANodeFrom, ANodeTo, AUID, FHighestEdgeIndexValue, AObject, AflOwnsObject, AflBiDirected, AWeight );
@@ -1400,7 +1432,7 @@ begin
       FEdges_ByObject.AddObject( Integer( edge.Object_ ), edge, true );
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось добавить дугу. Сообщение ошибки:' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось добавить дугу. Сообщение ошибки:' + sLineBreak + E.Message );
   end;
 
   Result := edge;
@@ -1422,7 +1454,7 @@ begin
     FEdges_ByObject.DelObject( Integer( AEdge.Object_ ), AEdge );
   except
     on E: Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
   end;
 end;
 
@@ -1446,7 +1478,7 @@ begin
     FEdges_ByObject.DelObject( Integer( aEdge.Object_ ), aEdge );
   except
     on E: Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
   end;
 end;
 
@@ -1470,7 +1502,7 @@ begin
     FEdges_ByObject.DelObject( Integer( aEdge.Object_ ), aEdge );
   except
     on E: Exception do
-      raise EBasicGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось удалить узел. Сообщение ошибки: ' + sLineBreak + E.Message );
   end;
 end;
 
@@ -1507,7 +1539,7 @@ begin
 
   if ( FNodes_ByUID = nil )
   OR ( FNodes_ByObject = nil) then
-    raise EBasicGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
+    raise EGraphError.Create( 'Невозможно добавить узел в несуществующий (nil) список узлов.' );
 
   newEdge_Weight := AEdge.Weight - AEdge_NewWeight;
   if ( newEdge_Weight >= AEdge.Weight )
@@ -1523,7 +1555,7 @@ begin
     AEdge.Weight := AEdge_NewWeight;
   except
     on E:Exception do
-      raise EBasicGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
+      raise EGraphError.Create( 'Не удалось добавить узел. Сообщение ошибки:' + sLineBreak + E.Message );
   end;
 
   Result := True;
@@ -1540,15 +1572,15 @@ begin
   Result := false;
 
   //если у узла не 1 входящая или не 1 выходящая или взодящая = выходящая дуга, то выйти и вернуть false
-  if ( ANode.GetEdgesCount( bgdTo ) <> 1 )
-    or ( ANode.GetEdgesCount( bgdFrom ) <> 1 )
-    or ( ANode.GetEdge_ByIndex( 0, bgdTo ) = ANode.GetEdge_ByIndex(0, bgdFrom ) )
+  if ( ANode.GetEdgesCount( gdTo ) <> 1 )
+    or ( ANode.GetEdgesCount( gdFrom ) <> 1 )
+    or ( ANode.GetEdge_ByIndex( 0, gdTo ) = ANode.GetEdge_ByIndex(0, gdFrom ) )
   then
     Exit;
 
   //получаем левую и правую дуги
-  edgeTo := ANode.GetEdge_ByIndex(0, bgdTo);
-  edgeFrom := ANode.getEdge_ByIndex(0, bgdFrom);
+  edgeTo := ANode.GetEdge_ByIndex(0, gdTo);
+  edgeFrom := ANode.getEdge_ByIndex(0, gdFrom);
   //изменяем параметры левой дуги, в том числе меняем её nodeTo
   edgeTo.Weight := edgeTo.Weight + edgeFrom.Weight;
   edgeTo.NodeTo := edgeFrom.NodeTo;
@@ -1575,15 +1607,15 @@ begin
   aNode := GetNode_ByUID( AUID );
 
   //если у узла не 1 входящая или не 1 выходящая или взодящая = выходящая дуга, то выйти и вернуть false
-  if ( aNode.GetEdgesCount( bgdTo ) <> 1 )
-    or ( aNode.GetEdgesCount( bgdFrom ) <> 1 )
-    or ( aNode.GetEdge_ByIndex( 0, bgdTo ) = aNode.GetEdge_ByIndex(0, bgdFrom ) )
+  if ( aNode.GetEdgesCount( gdTo ) <> 1 )
+    or ( aNode.GetEdgesCount( gdFrom ) <> 1 )
+    or ( aNode.GetEdge_ByIndex( 0, gdTo ) = aNode.GetEdge_ByIndex(0, gdFrom ) )
   then
     Exit;
 
   //получаем левую и правую дуги
-  edgeTo := aNode.GetEdge_ByIndex(0, bgdTo);
-  edgeFrom := aNode.getEdge_ByIndex(0, bgdFrom);
+  edgeTo := aNode.GetEdge_ByIndex(0, gdTo);
+  edgeFrom := aNode.getEdge_ByIndex(0, gdFrom);
   //изменяем параметры левой дуги, в том числе меняем её nodeTo
   edgeTo.Weight := edgeTo.Weight + edgeFrom.Weight;
   edgeTo.NodeTo := edgeFrom.NodeTo;
@@ -1610,15 +1642,15 @@ begin
   aNode := GetNode_ByObject( AObject );
 
   //если у узла не 1 входящая или не 1 выходящая или взодящая = выходящая дуга, то выйти и вернуть false
-  if ( aNode.GetEdgesCount( bgdTo ) <> 1 )
-    or ( aNode.GetEdgesCount( bgdFrom ) <> 1 )
-    or ( aNode.GetEdge_ByIndex( 0, bgdTo ) = aNode.GetEdge_ByIndex(0, bgdFrom ) )
+  if ( aNode.GetEdgesCount( gdTo ) <> 1 )
+    or ( aNode.GetEdgesCount( gdFrom ) <> 1 )
+    or ( aNode.GetEdge_ByIndex( 0, gdTo ) = aNode.GetEdge_ByIndex(0, gdFrom ) )
   then
     Exit;
 
   //получаем левую и правую дуги
-  edgeTo := aNode.GetEdge_ByIndex(0, bgdTo);
-  edgeFrom := aNode.getEdge_ByIndex(0, bgdFrom);
+  edgeTo := aNode.GetEdge_ByIndex(0, gdTo);
+  edgeFrom := aNode.getEdge_ByIndex(0, gdFrom);
   //изменяем параметры левой дуги, в том числе меняем её nodeTo
   edgeTo.Weight := edgeTo.Weight + edgeFrom.Weight;
   edgeTo.NodeTo := edgeFrom.NodeTo;
@@ -1651,9 +1683,9 @@ var
     index: Integer;
     edge: TBasicGraphEdge;
   begin
-    for index := 0 to startNode.GetEdgesCount( bgdFrom ) - 1 do
+    for index := 0 to startNode.GetEdgesCount( gdFrom ) - 1 do
     begin
-      edge := startNode.GetEdge_ByIndex( index, bgdFrom );
+      edge := startNode.GetEdge_ByIndex( index, gdFrom );
       distanceFromSource[ edge.NodeTo.NodeIndex ] := edge.Weight;
       incomingEdge[ edge.NodeTo.NodeIndex ] := edge;
       queuedEdges.AddElement( TEdgeStruct.Create( edge, edge.Weight ) );
@@ -1700,9 +1732,9 @@ begin
 
       queuedEdge := edgeStruct.Edge;
       currentNode := queuedEdge.NodeTo;
-      for index := 0 to currentNode.GetEdgesCount( bgdFrom ) - 1 do
+      for index := 0 to currentNode.GetEdgesCount( gdFrom ) - 1 do
       begin
-        currentEdge := currentNode.GetEdge_ByIndex( index, bgdFrom );
+        currentEdge := currentNode.GetEdge_ByIndex( index, gdFrom );
         currentDistanceFromSource := distanceFromSource[ currentNode.NodeIndex ] + currentEdge.Weight;
         if ( distanceFromSource[ currentEdge.NodeTo.NodeIndex ] < 0 )
           OR ( distanceFromSource[ currentEdge.NodeTo.NodeIndex ] > currentDistanceFromSource ) then

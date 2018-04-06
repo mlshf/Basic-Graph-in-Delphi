@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, uniTypes, math, mapplMath, Contnrs,
-  basicGraph, DBACore, DBConn, sqlLoader;
+  basicGraph, mgtGraph, DBACore, DBConn, sqlLoader;
 
 type
   TForm1 = class(TForm)
