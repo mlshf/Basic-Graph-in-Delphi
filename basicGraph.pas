@@ -184,7 +184,7 @@ type
     property Object_: TObject read FObject write SetObject;
     property FlOwnsObject: Boolean read FflOwnsObject write SetFlOwnsObject;
     property NodeFrom: TBasicGraphNode read GetNodeFrom write SetNodeFrom;
-    property NodeTo: TBasicGraphNode read GetNodeFrom write SetNodeTo;
+    property NodeTo: TBasicGraphNode read GetNodeTo write SetNodeTo;
     property FlBiDirected: Boolean read FflBiDirected write FflBiDirected;
     property Weight: Double read FWeight write SetWeight;
     property EdgeIndex: Integer read FIndex;
@@ -203,6 +203,15 @@ type
     //Хэш-контейнер, хранящий дугу по ассоциированному объекту. Обладает своими объектами.
     FEdges_ByObject: THashContainer;
 
+    //ДОБАВЛЕНИЕ УЗЛА
+    function CreateNode( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
+                          AflOwnsObject: Boolean = False ): TBasicGraphNode; virtual;
+
+    //добавление дуги
+    function CreateEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AIndex: Integer = -1;
+                          AObject: TObject = nil; AflOwnsObject: Boolean = false;
+                          AflBiDirected: Boolean = false; AWeight: Double = 1.0 ): TBasicGraphEdge; virtual;
+
   public
     constructor Create();
 
@@ -210,12 +219,8 @@ type
 
     //----------------------------------------------------------------------------------------------------------------
 
-    //ДОБАВЛЕНИЕ УЗЛА
-    function CreateNode( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
-                          AflOwnsObject: Boolean = False ): TBasicGraphNode; virtual;
-
     //Добавить узел в список узлов, возвращает объект
-    function AddNode( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ): TBasicGraphNode; virtual;
+    function AddNode( AUID: Int64 = -1; AObject: TObject = nil; AflOwnsObject: Boolean = False ): TBasicGraphNode;
 
     //УДАЛЕНИЕ УЗЛА
     //Удалить узел. Возвращает True при удачном удалении, False при невозможности удаления
@@ -238,9 +243,9 @@ type
 
     //ДОБАВЛЕНИЕ ДУГИ
     //Добавить дугу в список дуг, возвращает объект
-    function AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AWeight: Double = 1.0;
+    function AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1;
                       AObject: TObject = nil; AflOwnsObject: Boolean = false;
-                      AflBiDirected: Boolean = false ): TBasicGraphEdge;
+                      AflBiDirected: Boolean = false; AWeight: Double = 1.0 ): TBasicGraphEdge;
 
     //УДАЛЕНИЕ ДУГИ
     //Удалить дугу.
@@ -271,6 +276,9 @@ type
     function DeleteNode_AndMergeEdges_ByUID( AUID: Int64 ): Boolean;
     //Удалить узел по объекту и объединить входящую и выходящую дуги в одну.
     function DeleteNode_AndMergeEdges_ByObject( AObject: TObject ): Boolean;
+
+    //возвращает список подходящих для учёта узлов при алгоритме поиска пути
+    function GetAppropriateEdges_for_FindPath( ANode: TBasicGraphNode ): TList; virtual;
 
     //найти путь из точки nodeFrom в точку nodeTo
     function FindPath(  nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
@@ -504,7 +512,9 @@ begin
           AddEdge_ToSelf( AEdge );  
         end
         else
+        begin
           raise EGraphError.Create( 'Попытка добавить в список дуг узла дугу, не связанную с этим узлом!' );
+        end;
       end;
     
     end;
@@ -1252,7 +1262,7 @@ end;
 function TBasicGraph.CreateNode( AUID: Int64 = -1; AIndex: Integer = -1; AObject: TObject = nil;
                                   AflOwnsObject: Boolean = False ): TBasicGraphNode;
 begin
-  Result := TBasicGraphNode.Create( AUID, FHighestNodeIndexValue, AObject, AflOwnsObject );
+  Result := TBasicGraphNode.Create( AUID, AIndex, AObject, AflOwnsObject );
 end;
 
 {**********************************************************************************************
@@ -1403,7 +1413,7 @@ begin
 end;
 
 {**********************************************************************************************
-* TBasicGraph.FindNode_ByUniqueID
+* TBasicGraph.GetNode_ByObject
 ***********************************************************************************************}
 function TBasicGraph.GetNode_ByObject( AObject: TObject ): TBasicGraphNode;
 begin
@@ -1411,11 +1421,22 @@ begin
 end;
 
 {**********************************************************************************************
+* TBasicGraph.CreateEdge
+***********************************************************************************************}
+function TBasicGraph.CreateEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AIndex: Integer = -1;
+                                  AObject: TObject = nil; AflOwnsObject: Boolean = false;
+                                  AflBiDirected: Boolean = false; AWeight: Double = 1.0 ): TBasicGraphEdge;
+begin
+  Result := TBasicGraphEdge.Create( ANodeFrom, ANodeTo, AUID, AIndex, AObject, AflOwnsObject,
+                                    AflBiDirected, AWeight );
+end;
+
+{**********************************************************************************************
 *  TBasicGraph.AddEdge
 ***********************************************************************************************}
-function TBasicGraph.AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1; AWeight: Double = 1.0;
-                      AObject: TObject = nil; AflOwnsObject: Boolean = false;
-                      AflBiDirected: Boolean = false ): TBasicGraphEdge;
+function TBasicGraph.AddEdge( ANodeFrom, ANodeTo: TBasicGraphNode; AUID: Int64 = -1;
+                              AObject: TObject = nil; AflOwnsObject: Boolean = false;
+                              AflBiDirected: Boolean = false; AWeight: Double = 1.0 ): TBasicGraphEdge;
 var
   edge: TBasicGraphEdge;
 begin
@@ -1424,7 +1445,7 @@ begin
     raise EGraphError.Create( 'Невозможно добавить дугу в несуществующий (nil) список дуг.' );
 
   try
-    edge := TBasicGraphEdge.Create( ANodeFrom, ANodeTo, AUID, FHighestEdgeIndexValue, AObject, AflOwnsObject, AflBiDirected, AWeight );
+    edge := CreateEdge( ANodeFrom, ANodeTo, AUID, FHighestEdgeIndexValue, AObject, AflOwnsObject, AflBiDirected, AWeight );
     FHighestEdgeIndexValue := FHighestEdgeIndexValue + 1;
 
     FEdges_ByUID.AddObject( edge.UID, edge, true );
@@ -1548,8 +1569,8 @@ begin
 
   try
     AEdge.NodeTo.DeleteEdge( AEdge );
-    newEdge := AddEdge( ANode, AEdge.NodeTo, ANewEdge_UID, newEdge_Weight, ANewEdge_Object, ANewEdge_flOwnsObject,
-                        AEdge.FlBiDirected );
+    newEdge := AddEdge( ANode, AEdge.NodeTo, ANewEdge_UID, ANewEdge_Object, ANewEdge_flOwnsObject,
+                        AEdge.FlBiDirected, newEdge_Weight );
     AEdge.NodeTo := ANode;
     ANode.AddEdge( AEdge );    
     AEdge.Weight := AEdge_NewWeight;
@@ -1665,6 +1686,18 @@ begin
 end;
 
 {**********************************************************************************************
+*TBasicGraph.GetAppropriateEdges_for_FindPath
+***********************************************************************************************}
+function TBasicGraph.GetAppropriateEdges_for_FindPath( ANode: TBasicGraphNode ): TList;
+var
+  i: integer;
+begin
+  Result := TList.Create();
+  for i := 0 to ANode.GetEdgesCount( gdFrom ) - 1 do
+    Result.Add( ANode.GetEdge_ByIndex( i, gdFrom ) );
+end;
+
+{**********************************************************************************************
 * TBasicGraph.FindPath
 ***********************************************************************************************}
 function TBasicGraph.FindPath( nodeFrom, nodeTo: TBasicGraphNode; path: TList ): double;
@@ -1677,6 +1710,7 @@ var
   queuedEdge, currentEdge: TBasicGraphEdge;
   edgeStruct: TEdgeStruct;
   currentDistanceFromSource: Double;
+  appropriateEdges: TList;
 
   procedure AddStartEdgesToArray( startNode: TBasicGraphNode );
   var
@@ -1732,9 +1766,10 @@ begin
 
       queuedEdge := edgeStruct.Edge;
       currentNode := queuedEdge.NodeTo;
-      for index := 0 to currentNode.GetEdgesCount( gdFrom ) - 1 do
+      appropriateEdges := GetAppropriateEdges_for_FindPath( currentNode );
+      for index := 0 to appropriateEdges.Count - 1 do
       begin
-        currentEdge := currentNode.GetEdge_ByIndex( index, gdFrom );
+        currentEdge := TBasicGraphEdge( appropriateEdges[ index ] );
         currentDistanceFromSource := distanceFromSource[ currentNode.NodeIndex ] + currentEdge.Weight;
         if ( distanceFromSource[ currentEdge.NodeTo.NodeIndex ] < 0 )
           OR ( distanceFromSource[ currentEdge.NodeTo.NodeIndex ] > currentDistanceFromSource ) then
@@ -1745,6 +1780,7 @@ begin
         end;
       end;    
       FreeAndNil( edgeStruct );
+      FreeAndNil( appropriateEdges );
     end;
     FreeAndNil( queuedEdges );
 
